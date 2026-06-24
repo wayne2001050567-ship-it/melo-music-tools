@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>和弦譜編輯器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>和弦譜編輯器 V2</h1>
+
+<div class="song-info">
+
+    <input id="title" placeholder="歌名">
+    <input id="artist" placeholder="演唱者">
+    <input id="lyricist" placeholder="作詞">
+    <input id="composer" placeholder="作曲">
+    <input id="key" placeholder="原調">
+    <input id="maleKey" placeholder="男調">
+    <input id="femaleKey" placeholder="女調">
+
+</div>
+
+<br>
+
+<textarea id="lyricsInput" placeholder="貼上歌詞"></textarea>
+
+<br><br>
+
+<button id="loadLyrics">載入歌詞</button>
+
+<hr>
+
+<div id="toolbar">
+
+    <input id="customChordInput" placeholder="自訂和弦，例如 Fmaj7">
+
+    <button id="addCustomChordBtn">新增和弦按鈕</button>
+
+    <br><br>
+
+    <button class="chordBtn">C</button>
+    <button class="chordBtn">Cm</button>
+    <button class="chordBtn">C7</button>
+    <button class="chordBtn">Cmaj7</button>
+    <button class="chordBtn">Csus4</button>
+
+    <button class="chordBtn">D</button>
+    <butt

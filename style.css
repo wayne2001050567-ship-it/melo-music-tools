@@ -1,0 +1,335 @@
+body{
+    font-family: Arial;
+    margin:20px;
+}
+
+textarea{
+    width:600px;
+    height:150px;
+}
+
+#editor{
+    width:900px;
+    min-height:500px;
+
+    border:1px solid #ccc;
+
+    position:relative;
+
+    padding:20px;
+
+    white-space:pre-wrap;
+}
+
+.chord{
+    position:absolute;
+
+    background:#ffe082;
+
+    padding:4px 8px;
+
+    border-radius:5px;
+
+    cursor:move;
+
+    user-select:none;
+
+    font-weight:bold;
+}
+.song-info{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.song-info input{
+    width:150px;
+    padding:5px;
+}
+
+#toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+#toolbar button{
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.barline{
+    position:absolute;
+
+    font-size:30px;
+
+    font-weight:bold;
+
+    cursor:move;
+
+    user-select:none;
+}
+.song-line{
+
+    position:relative;
+
+    min-height:70px;
+
+    margin-bottom:12px;
+
+    border-bottom:1px dashed #ddd;
+
+}
+
+.chord-layer{
+
+    position:relative;
+
+    height:28px;
+
+}
+
+.lyric-line{
+
+    min-height:28px;
+
+    font-size:20px;
+
+    white-space:pre-wrap;
+
+}
+
+.song-line.selected{
+
+    background:#fff8d6;
+
+}
+#scorePage{
+    width:900px;
+    min-height:1100px;
+    padding:30px;
+    background:white;
+    border:1px solid #ddd;
+}
+
+#scoreHeader{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    align-items:start;
+    margin-bottom:30px;
+}
+
+#leftInfo{
+    font-size:16px;
+    line-height:1.8;
+}
+
+#scoreTitle{
+    text-align:center;
+    font-size:34px;
+    font-weight:bold;
+    color:#3f4f8f;
+}
+
+#rightInfo{
+    font-size:16px;
+    line-height:1.8;
+    text-align:left;
+}
+
+@media print{
+    h1,
+    textarea,
+    button,
+    #toolbar,
+    .song-info,
+    hr{
+        display:none;
+    }
+
+    body{
+        margin:0;
+    }
+
+    #scorePage{
+        border:none;
+        width:100%;
+        padding:20px;
+    }
+}
+@media print{
+
+    h1,
+    .song-info,
+    textarea,
+    #loadLyrics,
+    #toolbar,
+    #updateInfoBtn,
+    hr{
+        display:none !important;
+    }
+
+    body{
+        margin:0;
+        background:white;
+    }
+
+    #scorePage{
+        width:100%;
+        min-height:auto;
+        border:none;
+        padding:20px;
+        box-sizing:border-box;
+    }
+
+    #scoreHeader{
+        display:grid;
+        grid-template-columns:1fr 1.3fr 1fr;
+        align-items:start;
+        margin-bottom:30px;
+    }
+
+    #scoreTitle{
+        text-align:center;
+        font-size:32px;
+        font-weight:bold;
+        color:#303f8f;
+    }
+
+    #leftInfo,
+    #rightInfo{
+        font-size:14px;
+        line-height:1.8;
+    }
+
+    #editor{
+        border:none;
+        width:100%;
+        padding:0;
+    }
+
+    .song-line{
+        page-break-inside:avoid;
+        border-bottom:none;
+        margin-bottom:12px;
+        min-height:58px;
+    }
+
+    .song-line.selected{
+        background:transparent;
+    }
+
+    .chord{
+        background:transparent;
+        color:#0066aa;
+        padding:0;
+        font-weight:bold;
+    }
+
+    .barline{
+        color:black;
+        font-size:22px;
+    }
+
+    .lyric-line{
+        font-size:18px;
+        line-height:1.8;
+    }
+}
+@media print{
+
+    body > *:not(#scorePage){
+        display:none !important;
+    }
+
+    body{
+        margin:0;
+        background:white;
+    }
+    #stylePanel{
+    display:none !important;
+    }
+    #scorePage{
+        display:block !important;
+        width:100%;
+        min-height:auto;
+        border:none;
+        padding:18px;
+        margin:0;
+        box-sizing:border-box;
+    }
+
+    #scoreHeader{
+        display:grid;
+        grid-template-columns:1fr 1.3fr 1fr;
+        align-items:start;
+        margin-bottom:18px;
+    }
+
+    #scoreTitle{
+        text-align:center;
+        font-size:30px;
+        font-weight:bold;
+        color:#303f8f;
+    }
+
+    #leftInfo,
+    #rightInfo{
+        font-size:14px;
+        line-height:1.6;
+    }
+
+    #editor{
+        border:none;
+        width:100%;
+        padding:0;
+    }
+
+    .song-line{
+        page-break-inside:avoid;
+        border-bottom:none;
+        margin-bottom:6px;
+        min-height:48px;
+    }
+
+    .song-line.selected{
+        background:transparent !important;
+    }
+
+    .chord-layer{
+        height:22px;
+    }
+
+    .lyric-line{
+        font-size:16px;
+        line-height:1.5;
+    }
+
+    .chord{
+        background:transparent !important;
+        color:#0066aa;
+        padding:0;
+        font-size:15px;
+        font-weight:bold;
+    }
+
+    .barline{
+        background:transparent !important;
+        color:black;
+        font-size:18px;
+    }
+
+    .section-line{
+        font-size:16px;
+        font-weight:bold;
+        color:#111;
+    }
+}
+#toolbar{
+    position:sticky;
+    top:0;
+    z-index:999;
+    background:white;
+    padding:10px;
+    border-bottom:2px solid #ccc;
+}

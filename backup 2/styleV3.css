@@ -1,0 +1,71 @@
+body{
+    font-family: Arial;
+    margin:20px;
+}
+
+textarea{
+    width:600px;
+    height:150px;
+}
+
+#editor{
+    width:900px;
+    min-height:500px;
+
+    border:1px solid #ccc;
+
+    position:relative;
+
+    padding:20px;
+
+    white-space:pre-wrap;
+}
+
+.chord{
+    position:absolute;
+
+    background:#ffe082;
+
+    padding:4px 8px;
+
+    border-radius:5px;
+
+    cursor:move;
+
+    user-select:none;
+
+    font-weight:bold;
+}
+.song-info{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.song-info input{
+    width:150px;
+    padding:5px;
+}
+
+#toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+#toolbar button{
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.barline{
+    position:absolute;
+
+    font-size:30px;
+
+    font-weight:bold;
+
+    cursor:move;
+
+    user-select:none;
+}
