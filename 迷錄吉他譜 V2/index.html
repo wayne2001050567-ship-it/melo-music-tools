@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>迷錄吉他譜 V2</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">🎸 迷錄吉他譜 V2</div>
+
+    <div class="toolbar">
+      <button id="addLineBtn">＋新增譜行</button>
+      <button id="addSectionBtn">＋段落標題</button>
+      <button id="zoomOutBtn">－</button>
+      <span id="zoomLabel">100%</span>
+      <button id="zoomInBtn">＋</button>
+      <button id="printBtn">列印 / PDF</button>
+    </div>
+  </header>
+
+  <main class="app">
+    <aside class="sidebar">
+      <h3>常用和弦</h3>
+      <div class="custom-chord-box">
+        <input id="customChordInput" type="text" placeholder="輸入自訂和弦，例如 F#m7(b5)" />
+        <button id="addCustomChordBtn">新增</button>
+      </div>
+      <div class="chord-grid">
+        <button class="chord-btn">C</button>
+        <button class="chord-btn">Dm</button>
+        <button class="chord-btn">Em</button>
+        <button class="chord-btn">F</button>
+        <button class="chord-btn">G</button>
+        <button class="chord-btn">Am</button>
+        <button class="chord-btn">Bdim</button>
+        <button class="chord-btn">C7</button>
+        <button class="chord-btn">G7</button>
+        <button class="chord-btn">Fmaj7</button>
+        <button class="chord-btn">Csus4</button>
+        <button class="chord-btn">Gsus4</button>
+      </div>
+
+      <h3>段落</h3>
+      <div class="section-grid">
+        <button class="section-btn">[前奏]</button>
+        <button class="section-btn">[主歌]</button>
+        <button class="section-btn">[副歌]</button>
+        <button class="section-btn">[間奏]</button>
+        <button class="section-btn">[Bridge]</button>
+        <button class="section-btn">[尾奏]</button>
+      </div>
+
+      <p class="hint">
+        先點選 A4 裡的譜行，再按和弦。<br>
+        和弦會固定在該譜行上方，不會亂跑。
+      </p>
+    </aside>
+
+    <section class="workspace">
+      <div class="page-scale" id="pageScale">
+        <div class="page" id="page">
+          <div class="score-header">
+            <div class="song-title" contenteditable="true">歌曲名稱</div>
+            <div class="song-meta" contenteditable="true">Key：C　Capo：0　Tempo：80</div>
+          </div>
+
+          <div class="score-body" id="scoreBody">
+            <div class="section-title" contenteditable="true">[前奏]</div>
+
+            <div class="score-line active">
+              <div class="chord-row" contenteditable="true">C　　　G　　　Am　　　F</div>
+              <div class="lyric-row" contenteditable="true">在這裡輸入歌詞，和弦會固定在上方</div>
+            </div>
+
+            <div class="score-line">
+              <div class="chord-row" contenteditable="true">C　　　G</div>
+              <div class="lyric-row" contenteditable="true">點擊這一行即可編輯</div>
+            </div>
+          </div>
+
+          <div class="watermark">迷錄音樂工作室 Melo Music Studio</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
