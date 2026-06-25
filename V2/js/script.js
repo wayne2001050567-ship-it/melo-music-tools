@@ -12,6 +12,9 @@ const addSectionBtn = document.getElementById("addSectionBtn");
 const zoomInBtn = document.getElementById("zoomInBtn");
 const zoomOutBtn = document.getElementById("zoomOutBtn");
 const printBtn = document.getElementById("printBtn");
+const saveProjectBtn = document.getElementById("saveProjectBtn");
+const loadProjectBtn = document.getElementById("loadProjectBtn");
+const loadProjectInput = document.getElementById("loadProjectInput");
 const customChordInput = document.getElementById("customChordInput");
 const addCustomChordBtn = document.getElementById("addCustomChordBtn");
 const chordGrid = document.querySelector(".chord-grid");
@@ -83,13 +86,15 @@ function updateCaretInfo(event) {
   lastCaretOffset = getCaretOffset(lyricRow);
 }
 
-function createChordChip(chord, leftPx) {
+function createChordChip(chord, leftPx = 0) {
   const chip = document.createElement("span");
+
+  const safeLeft = Number(leftPx) || 0;
 
   chip.className = "chord-chip";
   chip.textContent = chord;
-  chip.style.left = `${leftPx}px`;
-  chip.dataset.left = leftPx;
+  chip.style.left = `${safeLeft}px`;
+  chip.dataset.left = safeLeft;
   chip.draggable = false;
 
 chip.addEventListener("mousedown", event => {
@@ -264,10 +269,15 @@ function bindExistingLines() {
     }
 
     const chordRow = line.querySelector(".chord-row");
-    if (chordRow) {
-      convertExistingChordText(chordRow);
-      chordRow.contentEditable = "false";
-    }
+if (chordRow) {
+  const hasChips = chordRow.querySelectorAll(".chord-chip").length > 0;
+
+  if (!hasChips) {
+    convertExistingChordText(chordRow);
+  }
+
+  chordRow.contentEditable = "false";
+}
   });
 }
 
@@ -367,3 +377,101 @@ if (firstLine) {
 }
 
 updateZoom();
+function exportProjectData() {
+  return {
+    version: "melo-guitar-v2-beta",
+    title: document.querySelector(".song-title")?.textContent || "",
+    meta: document.querySelector(".song-meta")?.textContent || "",
+    blocks: Array.from(scoreBody.children).map(block => {
+      if (block.classList.contains("section-title")) {
+        return {
+          type: "section",
+          text: block.textContent
+        };
+      }
+
+      if (block.classList.contains("score-line")) {
+        return {
+          type: "line",
+          lyrics: block.querySelector(".lyric-row")?.textContent || "",
+          chords: Array.from(block.querySelectorAll(".chord-chip")).map(chip => ({
+            text: chip.textContent,
+            left: Number(chip.dataset.left || 0)
+          }))
+        };
+      }
+
+      return null;
+    }).filter(Boolean)
+  };
+}
+
+function downloadProjectFile() {
+  const data = exportProjectData();
+  const fileText = JSON.stringify(data, null, 2);
+  const blob = new Blob([fileText], { type: "application/json" });
+
+  const title = data.title.trim() || "melo-guitar-score";
+  const safeTitle = title.replace(/[\\/:*?"<>|]/g, "_");
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${safeTitle}.melo`;
+  link.click();
+
+  URL.revokeObjectURL(link.href);
+}
+
+function importProjectData(data) {
+  document.querySelector(".song-title").textContent = data.title || "歌曲名稱";
+  document.querySelector(".song-meta").textContent = data.meta || "Key：C　Capo：0　Tempo：80";
+
+  scoreBody.innerHTML = "";
+
+  data.blocks.forEach(block => {
+    if (block.type === "section") {
+      scoreBody.appendChild(createSectionTitle(block.text || "[段落]"));
+    }
+
+    if (block.type === "line") {
+      const line = createScoreLine("", block.lyrics || "");
+      const chordRow = line.querySelector(".chord-row");
+
+      block.chords.forEach(chord => {
+  const left = Number(chord.left) || 0;
+  chordRow.appendChild(createChordChip(chord.text, left));
+});
+
+      scoreBody.appendChild(line);
+    }
+  });
+
+  bindExistingLines();
+
+  const firstLine = document.querySelector(".score-line");
+  if (firstLine) setActiveLine(firstLine);
+}
+
+saveProjectBtn.addEventListener("click", downloadProjectFile);
+
+loadProjectBtn.addEventListener("click", () => {
+  loadProjectInput.click();
+});
+
+loadProjectInput.addEventListener("change", event => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const data = JSON.parse(reader.result);
+      importProjectData(data);
+    } catch (error) {
+      alert("專案檔讀取失敗，請確認檔案格式是否正確。");
+    }
+  };
+
+  reader.readAsText(file);
+});
