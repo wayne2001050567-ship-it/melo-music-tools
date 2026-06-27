@@ -6,7 +6,6 @@ let zoom = 1;
 const scoreBody = document.getElementById("scoreBody");
 const pageScale = document.getElementById("pageScale");
 const zoomLabel = document.getElementById("zoomLabel");
-
 const addLineBtn = document.getElementById("addLineBtn");
 const addSectionBtn = document.getElementById("addSectionBtn");
 const zoomInBtn = document.getElementById("zoomInBtn");
@@ -15,9 +14,128 @@ const printBtn = document.getElementById("printBtn");
 const saveProjectBtn = document.getElementById("saveProjectBtn");
 const loadProjectBtn = document.getElementById("loadProjectBtn");
 const loadProjectInput = document.getElementById("loadProjectInput");
+const lyricsPasteBox = document.getElementById("lyricsPasteBox");
+const generateLyricsBtn = document.getElementById("generateLyricsBtn");
 const customChordInput = document.getElementById("customChordInput");
 const addCustomChordBtn = document.getElementById("addCustomChordBtn");
 const chordGrid = document.querySelector(".chord-grid");
+const lyricMinusBtn = document.getElementById("lyricMinusBtn");
+const lyricPlusBtn = document.getElementById("lyricPlusBtn");
+const lyricSizeLabel = document.getElementById("lyricSizeLabel");
+let lyricFontSize = 24;
+const lineHeightMinusBtn = document.getElementById("lineHeightMinusBtn");
+const lineHeightPlusBtn = document.getElementById("lineHeightPlusBtn");
+const lineHeightLabel = document.getElementById("lineHeightLabel");
+const compactModeBtn = document.getElementById("compactModeBtn");
+let lyricLineHeight = 1.4;
+const chordMinusBtn = document.getElementById("chordMinusBtn");
+const chordPlusBtn = document.getElementById("chordPlusBtn");
+const chordSizeLabel = document.getElementById("chordSizeLabel");
+let chordFontSize = 15;
+const deleteBlockBtn = document.getElementById("deleteBlockBtn");
+
+deleteBlockBtn.addEventListener("click", () => {
+  if (!activeLine) {
+    alert("請先點選要刪除的譜行或段落。");
+    return;
+  }
+
+  const ok = confirm("確定要刪除目前這一行嗎？");
+  if (!ok) return;
+
+  const nextTarget =
+    activeLine.nextElementSibling ||
+    activeLine.previousElementSibling;
+
+  activeLine.remove();
+  activeLine = null;
+  activeLyricRow = null;
+
+  if (nextTarget && nextTarget.classList.contains("score-line")) {
+    setActiveLine(nextTarget);
+  }
+});
+
+function updateChordFontSize() {
+  chordSizeLabel.textContent = chordFontSize;
+
+  document.querySelectorAll(".chord-chip").forEach(chip => {
+    chip.style.fontSize = chordFontSize + "px";
+  });
+}
+
+chordPlusBtn.addEventListener("click", () => {
+  chordFontSize++;
+  updateChordFontSize();
+});
+
+chordMinusBtn.addEventListener("click", () => {
+  if (chordFontSize <= 10) return;
+  chordFontSize--;
+  updateChordFontSize();
+});
+
+function updateLineHeight() {
+  lineHeightLabel.textContent = lyricLineHeight.toFixed(1);
+
+  document.querySelectorAll(".lyric-row").forEach(row => {
+    row.style.lineHeight = lyricLineHeight;
+  });
+
+  document.querySelectorAll(".score-line").forEach(line => {
+    line.style.marginBottom = lyricLineHeight <= 1.2 ? "2px" : "4px";
+  });
+}
+
+lineHeightPlusBtn.addEventListener("click", () => {
+  lyricLineHeight = Math.min(2.2, lyricLineHeight + 0.1);
+  updateLineHeight();
+});
+
+lineHeightMinusBtn.addEventListener("click", () => {
+  lyricLineHeight = Math.max(1.0, lyricLineHeight - 0.1);
+  updateLineHeight();
+});
+
+compactModeBtn.addEventListener("click", () => {
+  lyricFontSize = 18;
+  lyricLineHeight = 1.15;
+
+  document.querySelector(".page").style.padding = "30px 52px";
+  document.querySelector(".score-header").style.marginBottom = "16px";
+
+  updateLyricFontSize();
+  updateLineHeight();
+});
+
+function updateLyricFontSize(){
+
+    lyricSizeLabel.textContent = lyricFontSize;
+
+    document.querySelectorAll(".lyric-row").forEach(row=>{
+
+        row.style.fontSize = lyricFontSize+"px";
+
+    });
+
+}
+lyricPlusBtn.addEventListener("click",()=>{
+
+    lyricFontSize++;
+
+    updateLyricFontSize();
+
+});
+
+lyricMinusBtn.addEventListener("click",()=>{
+
+    if(lyricFontSize<=12)return;
+
+    lyricFontSize--;
+
+    updateLyricFontSize();
+
+});
 function setActiveLine(line) {
   document.querySelectorAll(".score-line").forEach(item => {
     item.classList.remove("active");
@@ -75,7 +193,7 @@ function getCaretLeftPx(element) {
 }
 
 function updateCaretInfo(event) {
-  const lyricRow = event.target.closest(".lyric-row");
+  const lyricRow = event.target.closest(".lyric-row, .section-title");
 
   if (!lyricRow) return;
 
@@ -161,6 +279,12 @@ if (activeLyricRow && activeLine.contains(activeLyricRow)) {
 }
 
 const chip = createChordChip(chord, leftPx);
+
+if (activeLine.classList.contains("section-line")) {
+  chip.style.left = "";
+  chip.dataset.left = 0;
+}
+
 chordRow.appendChild(chip);
 }
 
@@ -213,11 +337,30 @@ function createScoreLine(chords = "", lyrics = "輸入歌詞") {
 }
 
 function createSectionTitle(text = "[段落]") {
+  const sectionLine = document.createElement("div");
+  sectionLine.className = "section-line score-line";
+
   const section = document.createElement("div");
   section.className = "section-title";
   section.contentEditable = "true";
   section.textContent = text;
-  return section;
+
+  const chordRow = document.createElement("div");
+  chordRow.className = "chord-row section-chord-row";
+  chordRow.contentEditable = "false";
+
+  sectionLine.appendChild(section);
+  sectionLine.appendChild(chordRow);
+
+  sectionLine.addEventListener("click", () => {
+    setActiveLine(sectionLine);
+  });
+
+  section.addEventListener("click", updateCaretInfo);
+  section.addEventListener("keyup", updateCaretInfo);
+  section.addEventListener("input", updateCaretInfo);
+
+  return sectionLine;
 }
 
 function insertSection(text) {
@@ -277,7 +420,7 @@ if (chordRow) {
   }
 
   chordRow.contentEditable = "false";
-}
+} 
   });
 }
 
@@ -381,14 +524,19 @@ function exportProjectData() {
   return {
     version: "melo-guitar-v2-beta",
     title: document.querySelector(".song-title")?.textContent || "",
-    meta: document.querySelector(".song-meta")?.textContent || "",
+    leftInfo: document.querySelector(".song-info-left")?.textContent || "",
+    rightInfo: document.querySelector(".song-info-right")?.textContent || "",
     blocks: Array.from(scoreBody.children).map(block => {
-      if (block.classList.contains("section-title")) {
-        return {
-          type: "section",
-          text: block.textContent
-        };
-      }
+      if (block.classList.contains("section-line")) {
+  return {
+    type: "section",
+    text: block.querySelector(".section-title")?.textContent || "[段落]",
+    chords: Array.from(block.querySelectorAll(".chord-chip")).map(chip => ({
+      text: chip.textContent,
+      left: Number(chip.dataset.left || 0)
+    }))
+  };
+}
 
       if (block.classList.contains("score-line")) {
         return {
@@ -424,14 +572,23 @@ function downloadProjectFile() {
 
 function importProjectData(data) {
   document.querySelector(".song-title").textContent = data.title || "歌曲名稱";
-  document.querySelector(".song-meta").textContent = data.meta || "Key：C　Capo：0　Tempo：80";
-
+  document.querySelector(".song-info-left").textContent = data.leftInfo || "演唱：\n詞：\n曲：";
+  document.querySelector(".song-info-right").textContent = data.rightInfo || "原調：C　Capo：0\n男調：C　女調：C\n刷法：\n指法：";
   scoreBody.innerHTML = "";
 
   data.blocks.forEach(block => {
     if (block.type === "section") {
-      scoreBody.appendChild(createSectionTitle(block.text || "[段落]"));
-    }
+  const sectionLine = createSectionTitle(block.text || "[段落]");
+  const chordRow = sectionLine.querySelector(".chord-row");
+
+  if (block.chords) {
+    block.chords.forEach(chord => {
+      chordRow.appendChild(createChordChip(chord.text, chord.left || 0));
+    });
+  }
+
+  scoreBody.appendChild(sectionLine);
+}
 
     if (block.type === "line") {
       const line = createScoreLine("", block.lyrics || "");
@@ -475,3 +632,39 @@ loadProjectInput.addEventListener("change", event => {
 
   reader.readAsText(file);
 });
+
+function generateLinesFromLyrics() {
+  const text = lyricsPasteBox.value.trim();
+
+  if (!text) {
+    alert("請先貼上歌詞。");
+    return;
+  }
+
+  const lines = text
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(line => line.length > 0);
+
+  if (lines.length === 0) return;
+
+  const confirmReplace = confirm("要清空目前譜行，改用貼上的歌詞重新產生嗎？");
+
+  if (!confirmReplace) return;
+
+  scoreBody.innerHTML = "";
+
+  scoreBody.appendChild(createSectionTitle("[前奏]"));
+
+  lines.forEach(lyric => {
+    const line = createScoreLine("", lyric);
+    scoreBody.appendChild(line);
+  });
+
+  bindExistingLines();
+
+  const firstLine = document.querySelector(".score-line");
+  if (firstLine) setActiveLine(firstLine);
+}
+
+generateLyricsBtn.addEventListener("click", generateLinesFromLyrics);
