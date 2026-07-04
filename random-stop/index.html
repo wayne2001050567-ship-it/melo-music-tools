@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>隨機停止練琴器</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding-top: 80px;
+    }
+
+    h1 {
+      font-size: 36px;
+    }
+
+    .box {
+      margin: 20px auto;
+      padding: 30px;
+      max-width: 420px;
+      background: #222;
+      border-radius: 16px;
+    }
+
+    input {
+      width: 80px;
+      padding: 8px;
+      font-size: 18px;
+      text-align: center;
+      margin: 8px;
+    }
+
+    button {
+      font-size: 22px;
+      padding: 12px 28px;
+      margin: 12px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #startBtn {
+      background: #4caf50;
+      color: white;
+    }
+
+    #stopBtn {
+      background: #f44336;
+      color: white;
+    }
+
+    #status {
+      margin-top: 30px;
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    .ending {
+      color: #ff5252;
+      font-size: 72px;
+      animation: flash 0.4s infinite alternate;
+    }
+
+    @keyframes flash {
+      from { opacity: 1; }
+      to { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>隨機停止練琴器</h1>
+
+  <div class="box">
+    <p>最短停止時間：  
+      <input id="minTime" type="number" value="30"> 秒
+    </p>
+
+    <p>最長停止時間：  
+      <input id="maxTime" type="number" value="180"> 秒
+    </p>
+
+    <button id="startBtn" onclick="startRandomStop()">開始</button>
+    <button id="stopBtn" onclick="resetTool()">停止 / 重來</button>
+
+    <div id="status">等待開始</div>
+  </div>
+
+  <script>
+    let timer = null;
+
+    function startRandomStop() {
+      resetTool();
+
+      const min = Number(document.getElementById("minTime").value);
+      const max = Number(document.getElementById("maxTime").value);
+      const status = document.getElementById("status");
+
+      if (min <= 0 || max <= 0 || min >= max) {
+        status.textContent = "請確認時間設定正確";
+        return;
+      }
+
+      const randomSeconds = Math.floor(Math.random() * (max - min + 1)) + min;
+
+      status.textContent = "練琴中……隨時準備收尾";
+      status.className = "";
+
+      timer = setTimeout(() => {
+        status.textContent = "收尾！";
+        status.className = "ending";
+        playBeep();
+      }, randomSeconds * 1000);
+    }
+
+    function resetTool() {
+      if (timer) {
+        clearTimeout(timer);
+        timer = null;
+      }
+
+      const status = document.getElementById("status");
+      status.textContent = "等待開始";
+      status.className = "";
+    }
+
+    function playBeep() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = 880;
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      oscillator.start();
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
+      oscillator.stop(audioCtx.currentTime + 1);
+    }
+  </script>
+
+</body>
+</html>
