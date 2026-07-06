@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melo Music Tools</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      min-height: 100vh;
+      padding: 40px 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #ccc;
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
+
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: #222;
+      border-radius: 18px;
+      padding: 28px 20px;
+      text-decoration: none;
+      color: white;
+      transition: 0.2s;
+      border: 1px solid #333;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      background: #2c2c2c;
+    }
+
+    .icon {
+      font-size: 42px;
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      margin: 8px 0;
+      font-size: 24px;
+    }
+
+    .card p {
+      color: #bbb;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .coming {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .footer {
+      margin-top: 48px;
+      color: #777;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>🎵 Melo Music Tools</h1>
+    <div class="subtitle">迷錄音樂工作室｜音樂工具箱</div>
+
+    <div class="tools">
+      <a class="card" href="random-stop/">
+        <div class="icon">⏱️</div>
+        <h2>隨機停止練琴器</h2>
+        <p>隨機時間跳出收尾提示，練習伴奏時臨場收尾。</p>
+      </a>
+
+      <a class="card" href="V2/">
+        <div class="icon">🎼</div>
+        <h2>和弦譜編輯器</h2>
+        <p>製作、編輯、排版吉他和弦譜。</p>
+      </a>
+
+      <div class="card coming">
+        <div class="icon">🎲</div>
+        <h2>隨機和弦產生器</h2>
+        <p>Coming Soon</p>
+      </div>
+
+      <div class="card coming">
+        <div class="icon">🥁</div>
+        <h2>節拍器</h2>
+        <p>Coming Soon</p>
+      </div>
+
+      <div class="card coming">
+        <div class="icon">🎸</div>
+        <h2>Capo 對照工具</h2>
+        <p>Coming Soon</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      © Melo Music Studio
+    </div>
+  </div>
+</body>
+</html>
