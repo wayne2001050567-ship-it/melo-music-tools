@@ -9,7 +9,7 @@
       background: #111;
       color: white;
       text-align: center;
-      padding-top: 80px;
+      padding-top: 60px;
     }
 
     h1 {
@@ -19,7 +19,7 @@
     .box {
       margin: 20px auto;
       padding: 30px;
-      max-width: 460px;
+      max-width: 500px;
       background: #222;
       border-radius: 16px;
     }
@@ -36,14 +36,26 @@
     }
 
     input[type="file"] {
-      max-width: 280px;
+      max-width: 300px;
       font-size: 14px;
+    }
+
+    .sound-area {
+      margin: 22px 0;
+      padding: 18px;
+      background: #181818;
+      border-radius: 12px;
+    }
+
+    .sound-option {
+      margin: 10px;
+      font-size: 18px;
     }
 
     button {
       font-size: 22px;
       padding: 12px 28px;
-      margin: 12px;
+      margin: 10px;
       border: none;
       border-radius: 10px;
       cursor: pointer;
@@ -59,10 +71,22 @@
       color: white;
     }
 
+    #testBtn {
+      background: #2196f3;
+      color: white;
+      font-size: 18px;
+    }
+
+    #clearSoundBtn {
+      background: #777;
+      color: white;
+      font-size: 16px;
+    }
+
     #soundName {
       font-size: 14px;
       color: #ccc;
-      margin-top: 6px;
+      margin-top: 8px;
     }
 
     #status {
@@ -96,12 +120,28 @@
       <input id="maxTime" type="number" value="180"> 秒
     </p>
 
-    <p>
-      結尾音效：
-      <input id="soundFile" type="file" accept="audio/mp3,audio/*">
-    </p>
+    <div class="sound-area">
+      <h2>結尾音效</h2>
 
-    <div id="soundName">目前音效：預設嗶聲</div>
+      <label class="sound-option">
+        <input type="radio" name="soundMode" value="beep" checked>
+        預設嗶聲
+      </label>
+
+      <label class="sound-option">
+        <input type="radio" name="soundMode" value="custom">
+        自訂 MP3
+      </label>
+
+      <p>
+        <input id="soundFile" type="file" accept="audio/mp3,audio/*">
+      </p>
+
+      <div id="soundName">目前音效：預設嗶聲</div>
+
+      <button id="testBtn" onclick="playEndingSound()">測試播放音效</button>
+      <button id="clearSoundBtn" onclick="clearCustomSound()">清除自訂音效</button>
+    </div>
 
     <button id="startBtn" onclick="startRandomStop()">開始</button>
     <button id="stopBtn" onclick="resetTool()">停止 / 重來</button>
@@ -112,25 +152,112 @@
   <script>
     let timer = null;
     let endingAudio = null;
+    let db = null;
 
     const soundFileInput = document.getElementById("soundFile");
     const soundName = document.getElementById("soundName");
 
-    soundFileInput.addEventListener("change", function () {
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open("RandomStopSoundDB", 1);
+
+        request.onupgradeneeded = function (event) {
+          db = event.target.result;
+          if (!db.objectStoreNames.contains("sounds")) {
+            db.createObjectStore("sounds");
+          }
+        };
+
+        request.onsuccess = function (event) {
+          db = event.target.result;
+          resolve(db);
+        };
+
+        request.onerror = function () {
+          reject("無法開啟資料庫");
+        };
+      });
+    }
+
+    function saveSound(file) {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["sounds"], "readwrite");
+        const store = transaction.objectStore("sounds");
+
+        store.put(file, "customSound");
+        store.put(file.name, "customSoundName");
+
+        transaction.oncomplete = resolve;
+        transaction.onerror = reject;
+      });
+    }
+
+    function loadSound() {
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["sounds"], "readonly");
+        const store = transaction.objectStore("sounds");
+
+        const fileRequest = store.get("customSound");
+        const nameRequest = store.get("customSoundName");
+
+        fileRequest.onsuccess = function () {
+          const file = fileRequest.result;
+
+          if (file) {
+            const audioURL = URL.createObjectURL(file);
+            endingAudio = new Audio(audioURL);
+            endingAudio.volume = 1;
+
+            nameRequest.onsuccess = function () {
+              soundName.textContent = "目前音效：" + nameRequest.result + "（已記住）";
+              document.querySelector('input[name="soundMode"][value="custom"]').checked = true;
+              resolve();
+            };
+          } else {
+            soundName.textContent = "目前音效：預設嗶聲";
+            resolve();
+          }
+        };
+
+        fileRequest.onerror = reject;
+      });
+    }
+
+    function clearCustomSound() {
+      if (!db) return;
+
+      const transaction = db.transaction(["sounds"], "readwrite");
+      const store = transaction.objectStore("sounds");
+
+      store.delete("customSound");
+      store.delete("customSoundName");
+
+      transaction.oncomplete = function () {
+        endingAudio = null;
+        soundFileInput.value = "";
+        soundName.textContent = "目前音效：預設嗶聲";
+        document.querySelector('input[name="soundMode"][value="beep"]').checked = true;
+      };
+    }
+
+    soundFileInput.addEventListener("change", async function () {
       const file = soundFileInput.files[0];
 
-      if (!file) {
-        endingAudio = null;
-        soundName.textContent = "目前音效：預設嗶聲";
-        return;
-      }
+      if (!file) return;
 
       const audioURL = URL.createObjectURL(file);
       endingAudio = new Audio(audioURL);
       endingAudio.volume = 1;
 
-      soundName.textContent = "目前音效：" + file.name;
+      await saveSound(file);
+
+      soundName.textContent = "目前音效：" + file.name + "（已記住）";
+      document.querySelector('input[name="soundMode"][value="custom"]').checked = true;
     });
+
+    function getSoundMode() {
+      return document.querySelector('input[name="soundMode"]:checked').value;
+    }
 
     function startRandomStop() {
       resetTool();
@@ -144,7 +271,7 @@
         return;
       }
 
-      if (endingAudio) {
+      if (endingAudio && getSoundMode() === "custom") {
         endingAudio.play().then(() => {
           endingAudio.pause();
           endingAudio.currentTime = 0;
@@ -175,10 +302,10 @@
     }
 
     function playEndingSound() {
-      if (endingAudio) {
+      if (getSoundMode() === "custom" && endingAudio) {
         endingAudio.currentTime = 0;
         endingAudio.play().catch(() => {
-          alert("音效被瀏覽器擋住，請再按一次開始或確認音量設定");
+          alert("音效被瀏覽器擋住，請先按開始或測試播放一次");
         });
       } else {
         playBeep();
@@ -201,6 +328,13 @@
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
       oscillator.stop(audioCtx.currentTime + 1.2);
     }
+
+    async function init() {
+      await openDB();
+      await loadSound();
+    }
+
+    init();
   </script>
 
 </body>
