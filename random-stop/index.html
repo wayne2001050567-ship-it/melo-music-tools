@@ -19,17 +19,25 @@
     .box {
       margin: 20px auto;
       padding: 30px;
-      max-width: 420px;
+      max-width: 460px;
       background: #222;
       border-radius: 16px;
     }
 
     input {
-      width: 80px;
       padding: 8px;
       font-size: 18px;
-      text-align: center;
       margin: 8px;
+    }
+
+    input[type="number"] {
+      width: 80px;
+      text-align: center;
+    }
+
+    input[type="file"] {
+      max-width: 280px;
+      font-size: 14px;
     }
 
     button {
@@ -49,6 +57,12 @@
     #stopBtn {
       background: #f44336;
       color: white;
+    }
+
+    #soundName {
+      font-size: 14px;
+      color: #ccc;
+      margin-top: 6px;
     }
 
     #status {
@@ -74,13 +88,20 @@
   <h1>隨機停止練琴器</h1>
 
   <div class="box">
-    <p>最短停止時間：  
+    <p>最短停止時間：
       <input id="minTime" type="number" value="30"> 秒
     </p>
 
-    <p>最長停止時間：  
+    <p>最長停止時間：
       <input id="maxTime" type="number" value="180"> 秒
     </p>
+
+    <p>
+      結尾音效：
+      <input id="soundFile" type="file" accept="audio/mp3,audio/*">
+    </p>
+
+    <div id="soundName">目前音效：預設嗶聲</div>
 
     <button id="startBtn" onclick="startRandomStop()">開始</button>
     <button id="stopBtn" onclick="resetTool()">停止 / 重來</button>
@@ -90,6 +111,26 @@
 
   <script>
     let timer = null;
+    let endingAudio = null;
+
+    const soundFileInput = document.getElementById("soundFile");
+    const soundName = document.getElementById("soundName");
+
+    soundFileInput.addEventListener("change", function () {
+      const file = soundFileInput.files[0];
+
+      if (!file) {
+        endingAudio = null;
+        soundName.textContent = "目前音效：預設嗶聲";
+        return;
+      }
+
+      const audioURL = URL.createObjectURL(file);
+      endingAudio = new Audio(audioURL);
+      endingAudio.volume = 1;
+
+      soundName.textContent = "目前音效：" + file.name;
+    });
 
     function startRandomStop() {
       resetTool();
@@ -103,6 +144,13 @@
         return;
       }
 
+      if (endingAudio) {
+        endingAudio.play().then(() => {
+          endingAudio.pause();
+          endingAudio.currentTime = 0;
+        }).catch(() => {});
+      }
+
       const randomSeconds = Math.floor(Math.random() * (max - min + 1)) + min;
 
       status.textContent = "練琴中……隨時準備收尾";
@@ -111,7 +159,7 @@
       timer = setTimeout(() => {
         status.textContent = "收尾！";
         status.className = "ending";
-        playBeep();
+        playEndingSound();
       }, randomSeconds * 1000);
     }
 
@@ -126,6 +174,17 @@
       status.className = "";
     }
 
+    function playEndingSound() {
+      if (endingAudio) {
+        endingAudio.currentTime = 0;
+        endingAudio.play().catch(() => {
+          alert("音效被瀏覽器擋住，請再按一次開始或確認音量設定");
+        });
+      } else {
+        playBeep();
+      }
+    }
+
     function playBeep() {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const oscillator = audioCtx.createOscillator();
@@ -138,9 +197,9 @@
       gainNode.connect(audioCtx.destination);
 
       oscillator.start();
-      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1);
-      oscillator.stop(audioCtx.currentTime + 1);
+      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+      oscillator.stop(audioCtx.currentTime + 1.2);
     }
   </script>
 
