@@ -33,6 +33,12 @@ const chordPlusBtn = document.getElementById("chordPlusBtn");
 const chordSizeLabel = document.getElementById("chordSizeLabel");
 let chordFontSize = 15;
 const deleteBlockBtn = document.getElementById("deleteBlockBtn");
+const playModeBtn =
+    document.getElementById("playModeBtn");
+
+const playModeSelect =
+    document.getElementById("playModeSelect");
+
 
 deleteBlockBtn.addEventListener("click", () => {
   if (!activeLine) {
@@ -668,3 +674,156 @@ function generateLinesFromLyrics() {
 }
 
 generateLyricsBtn.addEventListener("click", generateLinesFromLyrics);
+const sharpNotes = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B"
+];
+
+const flatToSharp = {
+    "Db": "C#",
+    "Eb": "D#",
+    "Gb": "F#",
+    "Ab": "G#",
+    "Bb": "A#"
+};
+
+const sharpToFlat = {
+    "C#": "Db",
+    "D#": "Eb",
+    "F#": "Gb",
+    "G#": "Ab",
+    "A#": "Bb"
+};
+
+playModeBtn.addEventListener("click", () => {
+
+    const currentMode = playModeSelect.value;
+
+    if (currentMode === "C") {
+
+        // Play C 轉成 Play G
+        transposeAllChords(7);
+
+        playModeSelect.value = "G";
+        playModeBtn.textContent = "切換成 Play C";
+
+    } else {
+
+        // Play G 轉成 Play C
+        transposeAllChords(-7);
+
+        playModeSelect.value = "C";
+        playModeBtn.textContent = "切換成 Play G";
+    }
+});
+playModeSelect.addEventListener("change", () => {
+
+    if (playModeSelect.value === "C") {
+        playModeBtn.textContent = "切換成 Play G";
+    } else {
+        playModeBtn.textContent = "切換成 Play C";
+    }
+});
+
+
+function transposeAllChords(semitones) {
+
+    const chordElements =
+        document.querySelectorAll(".chord-chip");
+
+    console.log("找到和弦數量：", chordElements.length);
+
+    chordElements.forEach(chordElement => {
+
+        const oldChord =
+            chordElement.textContent.trim();
+
+        if (!oldChord || oldChord === "|" || oldChord === "-") {
+            return;
+        }
+
+        const newChord =
+            transposeChordName(oldChord, semitones);
+
+        chordElement.textContent = newChord;
+    });
+}
+
+function transposeChordName(chordName, semitones){
+
+    if(!chordName){
+        return chordName;
+    }
+
+    const chordParts = chordName.split("/");
+
+    const mainChord =
+    transposeSingleChordPart(
+        chordParts[0],
+        semitones
+    );
+
+    if(chordParts.length === 1){
+        return mainChord;
+    }
+
+    const bassNote =
+    transposeSingleChordPart(
+        chordParts[1],
+        semitones
+    );
+
+    return mainChord + "/" + bassNote;
+}
+
+
+function transposeSingleChordPart(chordPart, semitones){
+
+    const match =
+    chordPart.match(/^([A-G])([#b]?)(.*)$/);
+
+    if(!match){
+        return chordPart;
+    }
+
+    const rootLetter = match[1];
+    const accidental = match[2];
+    const chordSuffix = match[3];
+
+    let originalRoot =
+    rootLetter + accidental;
+
+    if(flatToSharp[originalRoot]){
+        originalRoot =
+        flatToSharp[originalRoot];
+    }
+
+    const originalIndex =
+    sharpNotes.indexOf(originalRoot);
+
+    if(originalIndex === -1){
+        return chordPart;
+    }
+
+    const newIndex =
+    (
+        originalIndex +
+        semitones +
+        sharpNotes.length
+    ) % sharpNotes.length;
+
+    const newRoot =
+    sharpNotes[newIndex];
+
+    return newRoot + chordSuffix;
+}
