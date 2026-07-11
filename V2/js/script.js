@@ -33,11 +33,6 @@ const chordPlusBtn = document.getElementById("chordPlusBtn");
 const chordSizeLabel = document.getElementById("chordSizeLabel");
 let chordFontSize = 15;
 const deleteBlockBtn = document.getElementById("deleteBlockBtn");
-const playModeBtn =
-    document.getElementById("playModeBtn");
-
-const playModeSelect =
-    document.getElementById("playModeSelect");
 
 
 deleteBlockBtn.addEventListener("click", () => {
@@ -705,28 +700,18 @@ const sharpToFlat = {
     "A#": "Bb"
 };
 
-playModeBtn.addEventListener("click", () => {
-
-    const currentMode = playModeSelect.value;
-
-    if (currentMode === "C") {
-
-        // Play C 轉成 Play G
-        transposeAllChords(7);
-
-        playModeSelect.value = "G";
-        playModeBtn.textContent = "切換成 Play C";
-
-    } else {
-
-        // Play G 轉成 Play C
-        transposeAllChords(-7);
-
-        playModeSelect.value = "C";
-        playModeBtn.textContent = "切換成 Play G";
-    }
-});
 function updatePlayModeButton() {
+  const playModeSelect =
+    document.getElementById("playModeSelect");
+
+  const playModeBtn =
+    document.getElementById("playModeBtn");
+
+  if (!playModeSelect || !playModeBtn) {
+    console.error("找不到 Play 模式選單或按鈕");
+    return;
+  }
+
   if (playModeSelect.value === "C") {
     playModeBtn.textContent = "切換成 Play G";
   } else {
@@ -734,10 +719,50 @@ function updatePlayModeButton() {
   }
 }
 
-playModeSelect.addEventListener("change", updatePlayModeButton);
 
-// 網頁一開啟時立刻同步一次
-updatePlayModeButton();
+function setupPlayModeControls() {
+  const playModeSelect =
+    document.getElementById("playModeSelect");
+
+  const playModeBtn =
+    document.getElementById("playModeBtn");
+
+  if (!playModeSelect || !playModeBtn) {
+    console.error("Play 模式控制元件初始化失敗");
+    return;
+  }
+
+  playModeSelect.addEventListener("change", () => {
+    updatePlayModeButton();
+  });
+
+  playModeBtn.addEventListener("click", () => {
+
+    if (playModeSelect.value === "C") {
+
+      // Play C 轉成 Play G
+      transposeAllChords(7);
+
+      playModeSelect.value = "G";
+
+    } else {
+
+      // Play G 轉成 Play C
+      transposeAllChords(-7);
+
+      playModeSelect.value = "C";
+    }
+
+    updatePlayModeButton();
+  });
+
+  updatePlayModeButton();
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupPlayModeControls();
+});
 
 
 function transposeAllChords(semitones) {
