@@ -726,14 +726,18 @@ playModeBtn.addEventListener("click", () => {
         playModeBtn.textContent = "切換成 Play G";
     }
 });
-playModeSelect.addEventListener("change", () => {
+function updatePlayModeButton() {
+  if (playModeSelect.value === "C") {
+    playModeBtn.textContent = "切換成 Play G";
+  } else {
+    playModeBtn.textContent = "切換成 Play C";
+  }
+}
 
-    if (playModeSelect.value === "C") {
-        playModeBtn.textContent = "切換成 Play G";
-    } else {
-        playModeBtn.textContent = "切換成 Play C";
-    }
-});
+playModeSelect.addEventListener("change", updatePlayModeButton);
+
+// 網頁一開啟時立刻同步一次
+updatePlayModeButton();
 
 
 function transposeAllChords(semitones) {
