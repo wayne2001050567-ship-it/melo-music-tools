@@ -4,187 +4,269 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>隨機和弦進行產生器</title>
-  <style>
+<style>
+  body {
+    font-family: Arial, "Microsoft JhengHei", sans-serif;
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 20px;
+    line-height: 1.6;
+
+    background: url("images/bird.png") no-repeat center center fixed;
+    background-size: cover;
+
+    color: #222;
+  }
+
+  .card {
+    background: white;
+    padding: 30px 36px;
+    border-radius: 18px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  /* ===== 標題 ===== */
+
+  h1 {
+    margin: 0 0 6px;
+    font-size: 38px;
+    line-height: 1.25;
+  }
+
+  h2 {
+    margin-top: 18px;
+    margin-bottom: 7px;
+    font-size: 20px;
+  }
+
+  /* ===== 一般文字 ===== */
+
+  .small {
+    font-size: 17px;
+    color: #555;
+    margin-top: 4px;
+    margin-bottom: 14px;
+  }
+
+  .hint {
+    color: #666;
+    font-size: 14px;
+    margin-top: -4px;
+    margin-bottom: 10px;
+  }
+
+  /* ===== 輸入元件 ===== */
+
+  textarea,
+  input,
+  button {
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 6px;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    font-size: 16px;
+    border-radius: 12px;
+    border: 1px solid #ccc;
+  }
+
+  textarea {
+    height: 85px;
+    min-height: 70px;
+    resize: vertical;
+  }
+
+  /* ===== 數字設定 ===== */
+
+  .row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .row > div {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  /* ===== Checkbox ===== */
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+
+  .checkbox-row input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    transform: scale(1.2);
+  }
+
+  /* ===== 按鈕 ===== */
+
+  button {
+    cursor: pointer;
+    border: none;
+    background: #222;
+    color: white;
+    font-weight: bold;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    background: #444;
+  }
+
+  .secondary-btn {
+    background: #5865f2;
+  }
+
+  .secondary-btn:hover {
+    background: #4752c4;
+  }
+
+  .danger-btn {
+    background: #d9534f;
+  }
+
+  .danger-btn:hover {
+    background: #c9302c;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .button-group button {
+    flex: 1;
+    min-width: 180px;
+    margin-bottom: 0;
+  }
+
+  /* ===== 產生結果 ===== */
+
+  .result {
+    background: #eef6ff;
+
+    margin-top: 6px;
+    padding: 16px 20px;
+
+    min-height: 55px;
+    border-radius: 14px;
+
+    font-size: 28px;
+    font-weight: bold;
+    line-height: 1.5;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
+
+  /* ===== 倒數計時 ===== */
+
+  .timer-box {
+    background: #fff5e6;
+    border: 1px solid #ffd591;
+
+    margin-top: 6px;
+    padding: 12px 16px;
+
+    min-height: 45px;
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .status-text {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+
+    margin-top: 2px;
+    margin-bottom: 6px;
+  }
+
+  /* ===== 已儲存和弦 ===== */
+
+  .saved-box {
+    background: #f8f9fa;
+    border: 1px solid #e2e6ea;
+
+    margin-top: 6px;
+    padding: 12px 16px;
+
+    min-height: 30px;
+    border-radius: 14px;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ===== 手機 ===== */
+
+  @media (max-width: 700px) {
     body {
-      font-family: Arial, "Microsoft JhengHei", sans-serif;
-      max-width: 900px;
-      margin: 40px auto;
-      padding: 20px;
-      line-height: 1.8;
-
-      background: url("images/bird.png") no-repeat center center;
-      background-size: cover;
-
-      color: #222;
+      margin: 0;
+      padding: 10px;
+    }
 
     .card {
-      background: white;
-      padding: 24px;
-      border-radius: 18px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      padding: 20px;
     }
 
     h1 {
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
-
-    h2 {
-      margin-top: 28px;
-      margin-bottom: 10px;
-      font-size: 20px;
-    }
-
-    textarea, input, button {
-      width: 100%;
-      box-sizing: border-box;
-      margin-top: 8px;
-      margin-bottom: 16px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: 1px solid #ccc;
-    }
-
-    textarea {
-      resize: vertical;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: #222;
-      color: white;
-      font-weight: bold;
-      transition: 0.2s;
-    }
-
-    button:hover {
-      background: #444;
-    }
-
-    .secondary-btn {
-      background: #5865f2;
-    }
-
-    .secondary-btn:hover {
-      background: #4752c4;
-    }
-
-    .danger-btn {
-      background: #d9534f;
-    }
-
-    .danger-btn:hover {
-      background: #c9302c;
-    }
-
-    .result, .saved-box, .timer-box {
-      margin-top: 10px;
-      padding: 16px;
-      border-radius: 14px;
-      word-break: break-word;
-    }
-
-    .result {
-  background: #eef6ff;
-  font-size: 20px;       /* 👈 字體變小 */
-  font-weight: bold;
-  min-height: 60px;
-
-  padding: 20px;
-  border-radius: 16px;
-
-  display: flex;
-  flex-wrap: wrap;       /* 👈 允許換行（關鍵） */
-  align-items: center;
-  gap: 18px;             /* 👈 和弦之間距離 */
-    }
-
-    .saved-box {
-      background: #f8f9fa;
-      border: 1px solid #e2e6ea;
-      min-height: 36px;
-      white-space: pre-wrap;
-    }
-
-    .timer-box {
-      background: #fff5e6;
-      border: 1px solid #ffd591;
-      font-size: 22px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .hint {
-      color: #666;
-      font-size: 14px;
-      margin-top: -8px;
-      margin-bottom: 16px;
+      font-size: 28px;
     }
 
     .small {
-      font-size: 14px;
-      color: #555;
+      font-size: 15px;
     }
 
-    .row {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
+    .result {
+      font-size: 23px;
     }
 
-    .row > div {
-      flex: 1;
-      min-width: 180px;
-    }
-
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      font-size: 16px;
-    }
-
-    .checkbox-row input[type="checkbox"] {
-      width: auto;
-      margin: 0;
-      transform: scale(1.2);
+    .timer-box {
+      font-size: 24px;
     }
 
     .button-group {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
+      flex-direction: column;
     }
 
     .button-group button {
-      flex: 1;
-      min-width: 180px;
-      margin-bottom: 0;
+      min-width: 100%;
     }
-
-    .status-text {
-      font-size: 14px;
-      color: #666;
-      margin-top: -6px;
-      margin-bottom: 14px;
-    }
-  </style>
+  }
+</style>
 </head>
 <body>
   <div class="card">
     <h1>隨機和弦進行產生器</h1>
-    <p class="small">可隨機抽和弦、記憶常用和弦，並在生成後自動開始倒數。</p>
+    <p class="small">
+   快速產生隨機和弦進行，搭配倒數計時進行即興、反應與和弦轉換練習。
+    </p>
 
     <h2>和弦輸入</h2>
     <label for="chords">請貼上和弦（可用空格、逗號、換行分隔）</label>
-    <textarea id="chords" rows="8" placeholder="例如：
-C Am F G
-Dm G C Am
-Em, Bm, C, G"></textarea>
+    <textarea id="chords" rows="3" placeholder="例如：C Am F G Dm Em Bm7-5"></textarea>
     <div class="hint">支援格式：空格、逗號、換行都可以</div>
 
     <div class="row">
