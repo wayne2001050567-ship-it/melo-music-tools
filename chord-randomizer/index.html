@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>隨機和弦進行產生器</title>
+  <style>
+    body {
+      font-family: Arial, "Microsoft JhengHei", sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.8;
+
+      background: url("images/bird.png") no-repeat center center;
+      background-size: cover;
+
+      color: #222;
+
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      margin-top: 28px;
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    textarea, input, button {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 8px;
+      margin-bottom: 16px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+    }
+
+    textarea {
+      resize: vertical;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: #222;
+      color: white;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #444;
+    }
+
+    .secondary-btn {
+      background: #5865f2;
+    }
+
+    .secondary-btn:hover {
+      background: #4752c4;
+    }
+
+    .danger-btn {
+      background: #d9534f;
+    }
+
+    .danger-btn:hover {
+      background: #c9302c;
+    }
+
+    .result, .saved-box, .timer-box {
+      margin-top: 10px;
+      padding: 16px;
+      border-radius: 14px;
+      word-break: break-word;
+    }
+
+    .result {
+  background: #eef6ff;
+  font-size: 20px;       /* 👈 字體變小 */
+  font-weight: bold;
+  min-height: 60px;
+
+  padding: 20px;
+  border-radius: 16px;
+
+  display: flex;
+  flex-wrap: wrap;       /* 👈 允許換行（關鍵） */
+  align-items: center;
+  gap: 18px;             /* 👈 和弦之間距離 */
+    }
+
+    .saved-box {
+      background: #f8f9fa;
+      border: 1px solid #e2e6ea;
+      min-height: 36px;
+      white-space: pre-wrap;
+    }
+
+    .timer-box {
+      background: #fff5e6;
+      border: 1px solid #ffd591;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .hint {
+      color: #666;
+      font-size: 14px;
+      margin-top: -8px;
+      margin-bottom: 16px;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .row > div {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+      transform: scale(1.2);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button-group button {
+      flex: 1;
+      min-width: 180px;
+      margin-bottom: 0;
+    }
+
+    .status-text {
+      font-size: 14px;
+      color: #666;
+      margin-top: -6px;
+      margin-bottom: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>隨機和弦進行產生器</h1>
+    <p class="small">可隨機抽和弦、記憶常用和弦，並在生成後自動開始倒數。</p>
+
+    <h2>和弦輸入</h2>
+    <label for="chords">請貼上和弦（可用空格、逗號、換行分隔）</label>
+    <textarea id="chords" rows="8" placeholder="例如：
+C Am F G
+Dm G C Am
+Em, Bm, C, G"></textarea>
+    <div class="hint">支援格式：空格、逗號、換行都可以</div>
+
+    <div class="row">
+      <div>
+        <label for="count">要抽幾個和弦</label>
+        <input id="count" type="number" min="1" value="4" />
+      </div>
+      <div>
+        <label for="timerSeconds">倒數秒數</label>
+        <input id="timerSeconds" type="number" min="1" value="30" />
+      </div>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="checkbox" id="enableTimer" />
+      <label for="enableTimer">啟用倒數計時器（按下產生和弦後自動開始）</label>
+    </div>
+
+    <div class="button-group">
+      <button onclick="generateChords()">產生隨機進行</button>
+      <button class="secondary-btn" onclick="saveFavoriteChords()">儲存常用和弦</button>
+      <button class="secondary-btn" onclick="loadFavoriteChords()">載入常用和弦</button>
+      <button class="danger-btn" onclick="clearFavoriteChords()">清除常用和弦</button>
+    </div>
+
+    <h2>產生結果</h2>
+    <div class="result" id="result">結果會顯示在這裡</div>
+
+    <h2>倒數計時</h2>
+    <div class="timer-box" id="timerDisplay">尚未開始</div>
+    <div class="status-text" id="timerStatus">倒數功能目前未啟用</div>
+
+    <h2>已儲存的常用和弦</h2>
+    <div class="saved-box" id="savedChordsDisplay">尚未儲存任何常用和弦</div>
+
+    <p class="small">
+      規則：從你提供的和弦中隨機抽取指定數量，不重複，再打亂順序。<br>
+      常用和弦會記錄在你目前使用的瀏覽器中。
+    </p>
+  </div>
+
+  <script>
+    let countdownInterval = null;
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function parseChords(text) {
+      return text
+        .split(/[\s,，]+/)
+        .map(chord => chord.trim())
+        .filter(chord => chord !== "");
+    }
+
+    function updateSavedChordsDisplay() {
+      const saved = localStorage.getItem("favoriteChords");
+      const display = document.getElementById("savedChordsDisplay");
+
+      if (!saved) {
+        display.textContent = "尚未儲存任何常用和弦";
+        return;
+      }
+
+      const parsed = JSON.parse(saved);
+      if (!parsed.length) {
+        display.textContent = "尚未儲存任何常用和弦";
+        return;
+      }
+
+      display.textContent = parsed.join("  /  ");
+    }
+
+    function saveFavoriteChords() {
+      const chordText = document.getElementById("chords").value;
+      const chords = [...new Set(parseChords(chordText))];
+
+      if (chords.length === 0) {
+        alert("請先輸入和弦，才能儲存常用和弦。");
+        return;
+      }
+
+      localStorage.setItem("favoriteChords", JSON.stringify(chords));
+      updateSavedChordsDisplay();
+      alert("已儲存常用和弦。");
+    }
+
+    function loadFavoriteChords() {
+      const saved = localStorage.getItem("favoriteChords");
+
+      if (!saved) {
+        alert("目前沒有已儲存的常用和弦。");
+        return;
+      }
+
+      const chords = JSON.parse(saved);
+      document.getElementById("chords").value = chords.join(" ");
+      alert("已載入常用和弦。");
+    }
+
+    function clearFavoriteChords() {
+      localStorage.removeItem("favoriteChords");
+      updateSavedChordsDisplay();
+      alert("已清除常用和弦。");
+    }
+
+    function stopCountdown() {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+      }
+    }
+
+    function startCountdown(seconds) {
+      stopCountdown();
+
+      const timerDisplay = document.getElementById("timerDisplay");
+      const timerStatus = document.getElementById("timerStatus");
+
+      let remaining = seconds;
+      timerDisplay.textContent = `${remaining} 秒`;
+      timerStatus.textContent = "倒數中";
+
+      countdownInterval = setInterval(() => {
+        remaining--;
+        if (remaining > 0) {
+          timerDisplay.textContent = `${remaining} 秒`;
+        } else {
+          stopCountdown();
+          timerDisplay.textContent = "時間到";
+          timerStatus.textContent = "本次倒數已結束";
+          alert("時間到！");
+        }
+      }, 1000);
+    }
+
+    function generateChords() {
+      const chordText = document.getElementById("chords").value;
+      const count = parseInt(document.getElementById("count").value, 10);
+      const enableTimer = document.getElementById("enableTimer").checked;
+      const timerSeconds = parseInt(document.getElementById("timerSeconds").value, 10);
+
+      const resultBox = document.getElementById("result");
+      const timerDisplay = document.getElementById("timerDisplay");
+      const timerStatus = document.getElementById("timerStatus");
+
+      const chords = parseChords(chordText);
+
+      if (chords.length === 0) {
+        resultBox.textContent = "請先輸入和弦。";
+        stopCountdown();
+        timerDisplay.textContent = "尚未開始";
+        timerStatus.textContent = "請先輸入和弦";
+        return;
+      }
+
+      if (isNaN(count) || count <= 0) {
+        resultBox.textContent = "請輸入正確的抽取數量。";
+        stopCountdown();
+        timerDisplay.textContent = "尚未開始";
+        timerStatus.textContent = "抽取數量有誤";
+        return;
+      }
+
+      const uniqueChords = [...new Set(chords)];
+
+      if (count > uniqueChords.length) {
+        resultBox.textContent = `你要求抽 ${count} 個，但目前只有 ${uniqueChords.length} 個不重複和弦。`;
+        stopCountdown();
+        timerDisplay.textContent = "尚未開始";
+        timerStatus.textContent = "和弦數量不足";
+        return;
+      }
+
+      const shuffled = shuffleArray(uniqueChords);
+      const selected = shuffled.slice(0, count);
+      const finalProgression = shuffleArray(selected);
+
+      resultBox.textContent = finalProgression.join(" - ");
+
+      if (enableTimer) {
+        if (isNaN(timerSeconds) || timerSeconds <= 0) {
+          timerDisplay.textContent = "尚未開始";
+          timerStatus.textContent = "倒數秒數設定錯誤";
+          alert("請輸入正確的倒數秒數。");
+          return;
+        }
+        startCountdown(timerSeconds);
+      } else {
+        stopCountdown();
+        timerDisplay.textContent = "未啟用";
+        timerStatus.textContent = "倒數功能目前未啟用";
+      }
+    }
+
+    document.getElementById("enableTimer").addEventListener("change", function () {
+      const timerStatus = document.getElementById("timerStatus");
+      const timerDisplay = document.getElementById("timerDisplay");
+
+      if (this.checked) {
+        timerStatus.textContent = "倒數功能已啟用，等待開始";
+        if (!countdownInterval) {
+          timerDisplay.textContent = "尚未開始";
+        }
+      } else {
+        stopCountdown();
+        timerDisplay.textContent = "未啟用";
+        timerStatus.textContent = "倒數功能目前未啟用";
+      }
+    });
+
+    updateSavedChordsDisplay();
+  </script>
+</body>
+</html>
