@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>隨機簡譜產生器</title>
+
+<style>
+/* =========================
+   八分音符連線
+========================= */
+
+/* =========================
+   兩個八分音符一組
+========================= */
+
+.eighth-group {
+    display: inline-grid;
+
+    grid-template-columns: 28px 28px;
+
+    column-gap: 3px;
+
+    position: relative;
+
+    align-items: center;
+    justify-items: center;
+
+    width: 59px;
+
+    padding-bottom: 7px;
+
+    flex-shrink: 1;
+}
+
+
+/* 共同八分音符線 */
+
+.eighth-group::after {
+    content: "";
+
+    position: absolute;
+
+    left: 2px;
+    right: 2px;
+
+    bottom: 4px;
+
+    height: 2px;
+
+    background: currentColor;
+}
+/* 八分音符組裡面的音，不要自己佔太多寬度 */
+
+.eighth-group .rhythm-item {
+    min-width: 0;
+    gap: 0;
+}
+
+.eighth-group .note {
+    min-width: 28px;
+    width: 28px;
+
+    padding-left: 0;
+    padding-right: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 30px 20px 60px;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "PingFang TC",
+        "Microsoft JhengHei",
+        sans-serif;
+
+    background: #f7f4ee;
+    color: #403b36;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* =========================
+   標題
+========================= */
+
+header {
+    margin-bottom: 30px;
+}
+
+h1 {
+    margin: 0 0 8px;
+    font-size: 34px;
+}
+
+.subtitle {
+    color: #817970;
+    font-size: 15px;
+}
+
+
+/* =========================
+   卡片
+========================= */
+
+.card {
+    background: #fffdf9;
+    border: 1px solid #ded8cf;
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.card h2 {
+    margin-top: 0;
+}
+/* =========================
+   一個完整節奏事件
+========================= */
+
+.rhythm-item {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+}
+
+
+/* 延長拍 */
+
+.duration-dash {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    height: 55px;
+
+    font-size: 28px;
+
+    font-weight: 500;
+
+}
+
+
+/* =========================
+   音域
+========================= */
+
+.octave-section {
+    margin-bottom: 28px;
+}
+
+.octave-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+.octave-title h3 {
+    margin: 0;
+}
+
+
+/* =========================
+   1～7
+========================= */
+
+.degree-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(7, minmax(105px, 1fr));
+
+    gap: 10px;
+}
+
+.degree-box {
+    border: 1px solid #ddd6cc;
+    border-radius: 12px;
+    padding: 8px;
+}
+
+.degree-name {
+    text-align: center;
+    font-size: 13px;
+    color: #958c82;
+    margin-bottom: 6px;
+}
+
+
+/* =========================
+   ♭ 1 ♯
+========================= */
+
+.accidentals {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+
+.note-option input {
+    display: none;
+}
+
+.note-option label {
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #d8d1c7;
+    border-radius: 8px;
+
+    cursor: pointer;
+
+    font-size: 17px;
+    font-weight: 600;
+
+    background: white;
+
+    transition: 0.15s;
+}
+
+.note-option label:hover {
+    background: #f2ede5;
+}
+
+.note-option input:checked + label {
+    background: #8d6b59;
+    color: white;
+    border-color: #8d6b59;
+}
+
+
+/* =========================
+   設定
+========================= */
+
+.settings {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(160px, 1fr));
+
+    gap: 15px;
+}
+
+.setting label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+}
+
+select {
+    width: 100%;
+
+    padding: 11px;
+
+    border: 1px solid #d5cec5;
+    border-radius: 9px;
+
+    background: white;
+
+    font-size: 16px;
+}
+
+
+/* =========================
+   按鈕
+========================= */
+
+button {
+    border: none;
+    border-radius: 9px;
+
+    padding: 10px 16px;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+.small-button {
+    background: #eee8df;
+    color: #4c453e;
+}
+
+.primary-button {
+    width: 100%;
+
+    margin-top: 18px;
+
+    padding: 14px;
+
+    background: #8d6b59;
+    color: white;
+
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.primary-button:hover {
+    opacity: 0.9;
+}
+
+
+/* =========================
+   簡譜顯示區
+========================= */
+
+.score-card {
+    overflow: visible;
+}
+
+.score-scroll {
+    width: 100%;
+    overflow: visible;
+    padding: 20px 0;
+}
+
+.score {
+    width: 100%;
+
+    display: grid;
+
+    /* 一行固定四小節 */
+    grid-template-columns: repeat(4, 1fr);
+
+    row-gap: 34px;
+}
+
+
+/* 每個小節 */
+
+.bar {
+    min-width: 0;
+    min-height: 100px;
+
+    display: flex;
+
+    align-items: center;
+
+    /* 不再用 space-evenly */
+    justify-content: space-around;
+
+    gap: 4px;
+
+    padding: 10px 6px;
+
+    border-right: 2px solid #514a44;
+}
+
+
+/* 每一行第一小節 */
+
+.bar:nth-child(4n + 1) {
+    border-left: 2px solid #514a44;
+}
+
+
+/* 手機改成一行兩小節 */
+
+@media (max-width: 700px) {
+
+    .score {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bar:nth-child(4n + 1) {
+        border-left: none;
+    }
+
+    .bar:nth-child(2n + 1) {
+        border-left: 2px solid #514a44;
+    }
+
+}
+
+
+/* =========================
+   簡譜音符
+========================= */
+
+.note {
+    position: relative;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 36px;
+    height: 55px;
+
+    font-size: 31px;
+    font-weight: 600;
+
+    line-height: 1;
+}
+
+
+/* 高音點 */
+
+/* 高音點：靠近數字 */
+.note.high::before {
+    content: "•";
+    position: absolute;
+
+    top: 1px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    font-size: 16px;
+    line-height: 1;
+}
+
+
+/* 低音點：靠近數字，而且位於八分音符底線上方 */
+.note.low::after {
+    content: "•";
+    position: absolute;
+
+    bottom: 3px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    font-size: 16px;
+    line-height: 1;
+}
+/* 八分音符有低音點時，把線往下留空間 */
+.note.low.eighth {
+    padding-bottom: 7px;
+}
+
+
+/* 十六分音符也一樣 */
+.note.low.sixteenth {
+    padding-bottom: 7px;
+}
+
+
+/* 升降記號 */
+
+.accidental {
+    font-size: 20px;
+
+    margin-right: 2px;
+
+    font-weight: 400;
+}
+
+
+/* 八分音符 */
+
+.note.eighth {
+    border-bottom: none;
+}
+
+
+/* 十六分音符 */
+
+.note.sixteenth {
+    border-bottom: 5px double currentColor;
+}
+
+
+/* =========================
+   錯誤訊息
+========================= */
+
+#error {
+    color: #a34f45;
+
+    font-size: 14px;
+
+    margin-top: 10px;
+
+    display: none;
+}
+
+
+/* =========================
+   手機
+========================= */
+
+@media (max-width: 900px) {
+
+    .degree-grid {
+        grid-template-columns:
+            repeat(4, minmax(90px, 1fr));
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    body {
+        padding: 20px 12px;
+    }
+
+    h1 {
+        font-size: 27px;
+    }
+
+    .degree-grid {
+        grid-template-columns:
+            repeat(2, minmax(100px, 1fr));
+    }
+
+    .settings {
+        grid-template-columns: 1fr;
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+<header>
+
+    <h1>隨機簡譜產生器</h1>
+
+    <div class="subtitle">
+        選擇想練習的音，隨機產生視譜練習。
+    </div>
+
+</header>
+
+
+<!-- =====================
+     選音
+===================== -->
+
+<div class="card">
+
+    <h2>選擇出題音</h2>
+
+    <p class="subtitle">
+        每個音皆可獨立選擇 ♭、自然音與 ♯。
+    </p>
+
+    <div style="
+        display:flex;
+        gap:8px;
+        flex-wrap:wrap;
+        margin-bottom:20px;
+    ">
+
+        <button
+            id="naturalAll"
+            class="small-button">
+            全部自然音
+        </button>
+
+        <button
+            id="clearAll"
+            class="small-button">
+            全部清除
+        </button>
+
+    </div>
+
+
+    <div id="noteSelector"></div>
+
+</div>
+
+
+<!-- =====================
+     練習設定
+===================== -->
+
+<div class="card">
+
+    <h2>練習設定</h2>
+
+    <div class="settings">
+
+        <div class="setting">
+
+            <label>
+                最短音符
+            </label>
+
+            <select id="minDuration">
+
+                <option value="1">
+                    四分音符
+                </option>
+
+                <option value="0.5">
+                    八分音符
+                </option>
+
+                <option value="0.25">
+                    十六分音符
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="setting">
+
+            <label>
+                拍號
+            </label>
+
+            <select id="meter">
+
+                <option value="4">
+                    4 / 4
+                </option>
+
+                <option value="3">
+                    3 / 4
+                </option>
+
+                <option value="2">
+                    2 / 4
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <div class="setting">
+
+            <label>
+                小節數
+            </label>
+
+            <select id="bars">
+
+                <option value="1">
+                    1 小節
+                </option>
+
+                <option value="2">
+                    2 小節
+                </option>
+
+                <option value="4" selected>
+                    4 小節
+                </option>
+
+                <option value="8">
+                    8 小節
+                </option>
+
+                <option value="12">
+                    12 小節
+                </option>
+
+                <option value="16">
+                    16 小節
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+    <button
+        id="generate"
+        class="primary-button">
+
+        🎲 產生新題目
+
+    </button>
+
+    <div id="error"></div>
+
+</div>
+
+
+<!-- =====================
+     題目
+===================== -->
+
+<div class="card score-card">
+
+    <h2>視譜練習</h2>
+
+    <div
+        id="scoreInfo"
+        class="score-info">
+    </div>
+
+
+    <div class="score-scroll">
+
+        <div
+            id="score"
+            class="score">
+        </div>
+
+    </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================
+   基本設定
+========================================= */
+
+const octaveGroups = [
+
+    {
+        name: "低音",
+        value: "low"
+    },
+
+    {
+        name: "中音",
+        value: "middle"
+    },
+
+    {
+        name: "高音",
+        value: "high"
+    }
+
+];
+
+
+const accidentals = [
+
+    {
+        name: "♭",
+        value: "flat"
+    },
+
+    {
+        name: "",
+        value: "natural"
+    },
+
+    {
+        name: "♯",
+        value: "sharp"
+    }
+
+];
+
+
+/* =========================================
+   建立選音介面
+========================================= */
+
+const noteSelector =
+    document.getElementById("noteSelector");
+
+
+octaveGroups.forEach((octave, octaveIndex) => {
+
+    const section =
+        document.createElement("div");
+
+    section.className =
+        "octave-section";
+
+
+    /* 標題 */
+
+    const title =
+        document.createElement("div");
+
+    title.className =
+        "octave-title";
+
+
+    title.innerHTML = `
+
+        <h3>
+            ${octave.name}
+        </h3>
+
+        <button
+            class="small-button octave-natural"
+            data-octave="${octave.value}">
+
+            此音域選自然音
+
+        </button>
+
+    `;
+
+
+    section.appendChild(title);
+
+
+    /* 1～7 */
+
+    const grid =
+        document.createElement("div");
+
+    grid.className =
+        "degree-grid";
+
+
+    for (
+        let number = 1;
+        number <= 7;
+        number++
+    ) {
+
+        const box =
+            document.createElement("div");
+
+        box.className =
+            "degree-box";
+
+
+        const degreeName =
+            document.createElement("div");
+
+        degreeName.className =
+            "degree-name";
+
+        degreeName.textContent =
+            `第 ${number} 音`;
+
+
+        box.appendChild(
+            degreeName
+        );
+
+
+        const row =
+            document.createElement("div");
+
+        row.className =
+            "accidentals";
+
+
+        accidentals.forEach(
+            (accidental, accIndex) => {
+                   /* =========================
+
+           移除不需要的升降音
+
+           ♭1、♯3、♭4、♯7
+
+        ========================= */
+
+        if (
+
+            (number === 1 && accidental.value === "flat") ||
+
+            (number === 3 && accidental.value === "sharp") ||
+
+            (number === 4 && accidental.value === "flat") ||
+
+            (number === 7 && accidental.value === "sharp")
+
+        ) {
+
+            return;
+
+        }
+
+
+
+            const id =
+                `note-${octaveIndex}-${number}-${accIndex}`;
+
+
+            const wrapper =
+                document.createElement("div");
+
+            wrapper.className =
+                "note-option";
+
+
+            const checked =
+
+                octave.value === "middle"
+
+                &&
+
+                accidental.value === "natural"
+
+                ? "checked"
+
+                : "";
+
+
+            wrapper.innerHTML = `
+
+                <input
+                    type="checkbox"
+
+                    id="${id}"
+
+                    data-number="${number}"
+
+                    data-octave="${octave.value}"
+
+                    data-accidental="${accidental.value}"
+
+                    ${checked}
+                >
+
+                <label for="${id}">
+
+                    ${accidental.name}${number}
+
+                </label>
+
+            `;
+
+
+            row.appendChild(
+                wrapper
+            );
+
+        });
+
+
+        box.appendChild(row);
+
+        grid.appendChild(box);
+
+    }
+
+
+    section.appendChild(grid);
+
+    noteSelector.appendChild(section);
+
+});
+
+
+/* =========================================
+   取得所有 checkbox
+========================================= */
+
+function getAllInputs() {
+
+    return Array.from(
+
+        document.querySelectorAll(
+            "#noteSelector input"
+        )
+
+    );
+
+}
+
+
+/* =========================================
+   取得已選音
+========================================= */
+
+function getSelectedNotes() {
+
+    return getAllInputs()
+
+        .filter(
+            input =>
+                input.checked
+        )
+
+        .map(
+            input => ({
+
+                number:
+                    input.dataset.number,
+
+                octave:
+                    input.dataset.octave,
+
+                accidental:
+                    input.dataset.accidental
+
+            })
+        );
+
+}
+
+
+/* =========================================
+   隨機抽取
+========================================= */
+
+function randomItem(array) {
+
+    return array[
+        Math.floor(
+            Math.random()
+            *
+            array.length
+        )
+    ];
+
+}
+
+
+/* =========================================
+   可使用的音符時值
+========================================= */
+
+function generateRhythmForBar(beats, minDuration) {
+
+    const rhythm = [];
+
+    let remainingBeats = beats;
+
+    while (remainingBeats > 0) {
+
+        const patterns = [];
+
+
+        /* =========================
+           1 拍：四分音符
+        ========================= */
+
+        patterns.push({
+            beats: 1,
+            durations: [1]
+        });
+
+
+        /* =========================
+           1 拍：兩個八分音符
+        ========================= */
+
+        if (minDuration <= 0.5) {
+
+            patterns.push({
+                beats: 1,
+                durations: [0.5, 0.5]
+            });
+
+        }
+
+
+        /* =========================
+           1 拍：四個十六分音符
+           目前先保留
+        ========================= */
+
+        if (minDuration <= 0.25) {
+
+            patterns.push({
+                beats: 1,
+                durations: [
+                    0.25,
+                    0.25,
+                    0.25,
+                    0.25
+                ]
+            });
+
+        }
+
+
+        /* =========================
+           2 拍：二分音符
+        ========================= */
+
+        if (remainingBeats >= 2) {
+
+            patterns.push({
+                beats: 2,
+                durations: [2]
+            });
+
+        }
+
+
+        /* 只能選塞得下的節奏型 */
+
+        const possiblePatterns =
+            patterns.filter(
+                pattern =>
+                    pattern.beats <= remainingBeats
+            );
+
+
+        const pattern =
+            randomItem(
+                possiblePatterns
+            );
+
+
+        rhythm.push(
+            ...pattern.durations
+        );
+
+
+        remainingBeats -=
+            pattern.beats;
+
+    }
+
+
+    return rhythm;
+
+}
+
+
+/* =========================================
+   建立一顆簡譜音符
+========================================= */
+
+function createNoteElement(note, duration) {
+
+    /*
+        一個 rhythm-item 代表一個完整的音符事件，
+        裡面包含數字與延長線。
+    */
+
+    const wrapper =
+        document.createElement("span");
+
+    wrapper.className =
+        "rhythm-item";
+
+
+    const element =
+        document.createElement("span");
+
+    element.classList.add("note");
+
+
+    /* =========================
+       高低八度
+    ========================= */
+
+    if (note.octave === "low") {
+
+        element.classList.add("low");
+
+    }
+
+    if (note.octave === "high") {
+
+        element.classList.add("high");
+
+    }
+
+
+    /* =========================
+       八分 / 十六分音符
+    ========================= */
+
+    if (duration === 0.5) {
+
+        element.classList.add("eighth");
+
+    }
+
+    if (duration === 0.25) {
+
+        element.classList.add("sixteenth");
+
+    }
+
+
+    /* =========================
+       升降記號
+    ========================= */
+
+    let accidental = "";
+
+
+    if (note.accidental === "sharp") {
+
+        accidental = "♯";
+
+    }
+
+    if (note.accidental === "flat") {
+
+        accidental = "♭";
+
+    }
+
+
+    element.innerHTML = `
+
+        ${
+            accidental
+            ?
+            `<span class="accidental">
+                ${accidental}
+            </span>`
+            :
+            ""
+        }
+
+        <span>
+            ${note.number}
+        </span>
+
+    `;
+
+
+    wrapper.appendChild(element);
+
+
+    /* =========================
+       延長拍
+    ========================= */
+
+    if (duration >= 2) {
+
+        const extraBeats =
+            Math.floor(duration) - 1;
+
+
+        for (
+            let i = 0;
+            i < extraBeats;
+            i++
+        ) {
+
+            const dash =
+                document.createElement("span");
+
+            dash.className =
+                "duration-dash";
+
+            dash.textContent =
+                "－";
+
+            wrapper.appendChild(dash);
+
+        }
+
+    }
+
+
+    return wrapper;
+
+}
+
+
+/* =========================================
+   產生題目
+========================================= */
+
+function generateScore() {
+
+    const selectedNotes =
+        getSelectedNotes();
+
+
+    const error =
+        document.getElementById(
+            "error"
+        );
+
+
+    if (
+        selectedNotes.length === 0
+    ) {
+
+        error.style.display =
+            "block";
+
+        error.textContent =
+            "請至少選擇一個音。";
+
+        return;
+
+    }
+
+
+    error.style.display =
+        "none";
+
+
+    const meter =
+        Number(
+            document.getElementById(
+                "meter"
+            ).value
+        );
+
+
+    const numberOfBars =
+        Number(
+            document.getElementById(
+                "bars"
+            ).value
+        );
+
+
+    const minDuration =
+        Number(
+            document.getElementById(
+                "minDuration"
+            ).value
+        );
+
+
+    const score =
+        document.getElementById(
+            "score"
+        );
+
+
+    score.innerHTML =
+        "";
+
+
+
+
+
+    /* =============================
+       每一小節
+    ============================= */
+
+    for (
+
+    let barIndex = 0;
+
+    barIndex < numberOfBars;
+
+    barIndex++
+
+) {
+
+    const bar =
+
+        document.createElement("div");
+
+    bar.className =
+
+        "bar";
+
+    /*
+
+        先產生「完整的一小節節奏」
+
+        4/4 → 一定 4 拍
+
+        3/4 → 一定 3 拍
+
+        2/4 → 一定 2 拍
+
+    */
+
+    const rhythm =
+
+        generateRhythmForBar(
+
+            meter,
+
+            minDuration
+
+        );
+
+    /*
+
+        節奏確定之後
+
+        再把隨機音高填進去
+
+    */
+
+let beatPosition = 0;
+
+for (
+    let i = 0;
+    i < rhythm.length;
+    i++
+) {
+
+    const duration =
+        rhythm[i];
+
+
+    /*
+        只有：
+
+        1. 現在是八分音符
+        2. 下一顆也是八分音符
+        3. 現在剛好位於一拍的開頭
+
+        才組成一組
+    */
+
+    const isBeatStart =
+        Math.abs(
+            beatPosition
+            -
+            Math.round(beatPosition)
+        ) < 0.0001;
+
+
+    if (
+        duration === 0.5
+        &&
+        rhythm[i + 1] === 0.5
+        &&
+        isBeatStart
+    ) {
+
+        const group =
+            document.createElement("span");
+
+        group.className =
+            "eighth-group";
+
+
+        const note1 =
+            randomItem(
+                selectedNotes
+            );
+
+        const note2 =
+            randomItem(
+                selectedNotes
+            );
+
+
+        group.appendChild(
+            createNoteElement(
+                note1,
+                0.5
+            )
+        );
+
+        group.appendChild(
+            createNoteElement(
+                note2,
+                0.5
+            )
+        );
+
+
+        bar.appendChild(
+            group
+        );
+
+
+        /*
+            兩個八分音符 = 一拍
+        */
+
+        beatPosition += 1;
+
+
+        /*
+            下一顆已經畫完
+        */
+
+        i++;
+
+        continue;
+
+    }
+
+
+    /* 一般音符 */
+
+    const note =
+        randomItem(
+            selectedNotes
+        );
+
+
+    bar.appendChild(
+        createNoteElement(
+            note,
+            duration
+        )
+    );
+
+
+    beatPosition +=
+        duration;
+
+}
+
+    score.appendChild(
+
+        bar
+
+    );
+
+}
+
+
+    /* =============================
+       題目資訊
+    ============================= */
+
+    let durationName;
+
+
+    if (
+        minDuration === 1
+    ) {
+
+        durationName =
+            "四分音符";
+
+    }
+
+    else if (
+        minDuration === 0.5
+    ) {
+
+        durationName =
+            "八分音符";
+
+    }
+
+    else {
+
+        durationName =
+            "十六分音符";
+
+    }
+
+
+    document.getElementById(
+        "scoreInfo"
+    ).textContent =
+
+        `${meter}/4 ・ `
+        +
+        `${numberOfBars} 小節 ・ `
+        +
+        `最短 ${durationName} ・ `
+        +
+        `${selectedNotes.length} 個可用音`;
+
+}
+
+
+/* =========================================
+   全部自然音
+========================================= */
+
+document
+.getElementById(
+    "naturalAll"
+)
+.addEventListener(
+    "click",
+    () => {
+
+        getAllInputs()
+        .forEach(
+            input => {
+
+                input.checked =
+
+                    input.dataset.accidental
+                    ===
+                    "natural";
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================
+   全部清除
+========================================= */
+
+document
+.getElementById(
+    "clearAll"
+)
+.addEventListener(
+    "click",
+    () => {
+
+        getAllInputs()
+        .forEach(
+            input => {
+
+                input.checked =
+                    false;
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================
+   單一音域自然音
+========================================= */
+
+document
+.querySelectorAll(
+    ".octave-natural"
+)
+.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const octave =
+                    button.dataset.octave;
+
+
+                getAllInputs()
+
+                .filter(
+                    input =>
+
+                        input.dataset.octave
+                        ===
+                        octave
+                )
+
+                .forEach(
+                    input => {
+
+                        input.checked =
+
+                            input.dataset.accidental
+                            ===
+                            "natural";
+
+                    }
+                );
+
+            }
+        );
+
+    }
+);
+
+
+/* =========================================
+   產生按鈕
+========================================= */
+
+document
+.getElementById(
+    "generate"
+)
+.addEventListener(
+    "click",
+    generateScore
+);
+
+
+/* =========================================
+   頁面開啟先產生一次
+========================================= */
+
+generateScore();
+
+</script>
+
+</body>
+</html>
