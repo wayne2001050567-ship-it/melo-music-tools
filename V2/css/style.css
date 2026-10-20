@@ -122,23 +122,35 @@ button:hover {
 
 .score-header {
   display: grid;
-  grid-template-columns: 1fr 1.3fr 1fr;
+
+  grid-template-columns: 1fr 2fr 1fr;
+
   align-items: start;
-  gap: 20px;
+  gap: 12px;
+
   margin-bottom: 15px;
 }
 
 .song-title {
-  font-size: 42px;
+  font-size: 32px;
   font-weight: 700;
-  outline: none;
+
   text-align: center;
+  white-space: nowrap;
+
+  outline: none;
   margin-top: 8px;
+
+  width: 100%;
+  min-width: 0;
 }
 
 .song-info {
   font-size: 15px;
+  font-weight: 700;
+
   line-height: 1.8;
+
   outline: none;
   white-space: pre-wrap;
 }
@@ -192,14 +204,25 @@ button:hover {
   line-height: 1.55;
 }
 
+/* ===== A4 列印設定 ===== */
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
+
+  html,
   body {
+    margin: 0;
+    padding: 0;
     background: white;
   }
 
   .topbar,
   .sidebar {
-    display: none;
+    display: none !important;
   }
 
   .app {
@@ -208,33 +231,41 @@ button:hover {
   }
 
   .workspace {
+    display: block;
     padding: 0;
+    margin: 0;
     overflow: visible;
   }
 
   .page-scale {
     transform: none !important;
+    margin: 0;
+    padding: 0;
   }
 
   .page {
-  width: 210mm;
-  min-height: 297mm;
-  box-shadow: none;
-  padding: 16mm 18mm;
+    width: 210mm;
+    min-height: 297mm;
 
-  background-image: url("../images/score-bg.jpg");
-  background-size: 100% 100%;
-  background-position: center top;
-  background-repeat: no-repeat;
+    margin: 0;
+    padding: 16mm 18mm;
 
-  print-color-adjust: exact;
-  -webkit-print-color-adjust: exact;
-}
+    box-shadow: none;
+
+    background-image: url("../images/score-bg.jpg");
+    background-size: 100% 100%;
+    background-position: center top;
+    background-repeat: no-repeat;
+
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
 
   .score-line.active {
     border-color: transparent;
     background: transparent;
   }
+
 }
 .chord-row {
   position: relative;
@@ -256,6 +287,8 @@ button:hover {
   cursor: pointer;
   user-select: none;
   z-index: 5;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
 }
 
 .chord-chip:hover {
@@ -324,4 +357,19 @@ button:hover {
   position: relative;
   left: auto !important;
   margin-right: 8px;
+}
+/* ===== 修正 A4 列印多出第二頁 ===== */
+
+@media print {
+
+  .score-body {
+    min-height: 0 !important;
+  }
+
+  .page {
+    height: 297mm !important;
+    min-height: 0 !important;
+    overflow: hidden;
+  }
+
 }
