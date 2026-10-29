@@ -10,65 +10,147 @@
   <header class="topbar">
     <div class="brand">🎸 迷錄吉他譜 V2</div>
 
-    <div class="toolbar">
-      <button id="addLineBtn">＋新增譜行</button>
-      <button id="addSharedLyricBtn">＋同組歌詞</button>
-      <button id="deleteSharedLyricBtn">－刪除同組歌詞</button>
-      <button id="addSectionBtn">＋段落標題</button>
-      <button id="deleteBlockBtn">刪除目前行</button>
-      <button id="zoomOutBtn">－</button>
-      <span id="zoomLabel">100%</span>
-      <button id="zoomInBtn">＋</button>
-      <span class="toolbar-gap"></span>
-      <button id="lyricMinusBtn">A-</button>
-      <span id="lyricSizeLabel">24</span>
-      <button id="lyricPlusBtn">A+</button>
-      <button id="chordMinusBtn">和弦-</button>
-      <span id="chordSizeLabel">15</span>
-      <button id="chordPlusBtn">和弦+</button>
-      <button id="lineHeightMinusBtn">行距-</button>
-<span id="lineHeightLabel">1.4</span>
-<button id="lineHeightPlusBtn">行距+</button>
-<button id="compactModeBtn">緊湊模式</button>
-      <button id="saveProjectBtn">儲存專案</button>
-      <button id="loadProjectBtn">開啟專案</button>
-      <input id="loadProjectInput" type="file" accept=".melo,.json" hidden />
-     <button id="printBtn">列印 / PDF</button>
-     <button id="exportPngBtn">匯出 PNG</button>
+    <div class="toolbar" role="toolbar" aria-label="譜面工具列">
+      <div class="toolbar-group" role="group" aria-label="譜行編輯">
+        <button id="addLineBtn">＋新增譜行</button>
+        <div class="toolbar-control" role="group" aria-label="同組歌詞">
+          <button id="addSharedLyricBtn">＋同組歌詞</button>
+          <button id="deleteSharedLyricBtn">－同組歌詞</button>
+        </div>
+        <button id="addSectionBtn">＋段落標題</button>
+        <button id="deleteBlockBtn">刪除目前行</button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="譜面排版">
+        <div class="toolbar-control" role="group" aria-label="譜面縮放">
+          <span class="toolbar-label">縮放</span>
+          <button id="zoomOutBtn" aria-label="縮小譜面">－</button>
+          <span id="zoomLabel" class="toolbar-value">100%</span>
+          <button id="zoomInBtn" aria-label="放大譜面">＋</button>
+        </div>
+        <div class="toolbar-control" role="group" aria-label="歌詞字級">
+          <span class="toolbar-label">歌詞</span>
+          <button id="lyricMinusBtn" aria-label="縮小歌詞字級">－</button>
+          <span id="lyricSizeLabel" class="toolbar-value">24</span>
+          <button id="lyricPlusBtn" aria-label="放大歌詞字級">＋</button>
+        </div>
+        <div class="toolbar-control" role="group" aria-label="和弦字級">
+          <span class="toolbar-label">和弦</span>
+          <button id="chordMinusBtn" aria-label="縮小和弦字級">－</button>
+          <span id="chordSizeLabel" class="toolbar-value">15</span>
+          <button id="chordPlusBtn" aria-label="放大和弦字級">＋</button>
+        </div>
+        <div class="toolbar-control" role="group" aria-label="歌詞行距">
+          <span class="toolbar-label">行距</span>
+          <button id="lineHeightMinusBtn" aria-label="減少歌詞行距">－</button>
+          <span id="lineHeightLabel" class="toolbar-value">1.4</span>
+          <button id="lineHeightPlusBtn" aria-label="增加歌詞行距">＋</button>
+        </div>
+        <button id="compactModeBtn">緊湊模式</button>
+      </div>
+
+      <div class="toolbar-group" role="group" aria-label="專案與匯出">
+        <button id="saveProjectBtn">儲存專案</button>
+        <button id="loadProjectBtn">開啟專案</button>
+        <input id="loadProjectInput" type="file" accept=".melo,.json" hidden />
+        <button id="printBtn">列印 / PDF</button>
+        <button id="exportPngBtn">匯出 PNG</button>
+      </div>
     </div>
   </header>
 
   <main class="app">
     <aside class="sidebar">
       <h3>常用和弦</h3>
-      <div class="custom-chord-box">
-        <input id="customChordInput" type="text" placeholder="輸入自訂和弦，例如 F#m7(b5)" />
-        <button id="addCustomChordBtn">新增</button>
+      <div class="chord-key-controls">
+        <div>
+          <label class="sidebar-label" for="chordKeySelect">主音</label>
+          <select id="chordKeySelect" class="sidebar-select">
+            <option value="C">C</option>
+            <option value="Db">Db</option>
+            <option value="C#">C#</option>
+            <option value="D">D</option>
+            <option value="Eb">Eb</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F#</option>
+            <option value="Gb">Gb</option>
+            <option value="G">G</option>
+            <option value="Ab">Ab</option>
+            <option value="G#">G#</option>
+            <option value="A">A</option>
+            <option value="Bb">Bb</option>
+            <option value="B">B</option>
+          </select>
+        </div>
+        <div>
+          <label class="sidebar-label" for="chordScaleModeSelect">調式</label>
+          <select id="chordScaleModeSelect" class="sidebar-select">
+            <option value="major">大調</option>
+            <option value="minor">小調</option>
+          </select>
+        </div>
       </div>
-      <div class="chord-grid">
-        <button class="chord-btn">C</button>
-        <button class="chord-btn">Dm</button>
-        <button class="chord-btn">Em</button>
-        <button class="chord-btn">F</button>
-        <button class="chord-btn">G</button>
-        <button class="chord-btn">Am</button>
-        <button class="chord-btn">Bdim</button>
-        <button class="chord-btn">C7</button>
-        <button class="chord-btn">G7</button>
-        <button class="chord-btn">Fmaj7</button>
-        <button class="chord-btn">Csus4</button>
-        <button class="chord-btn">Gsus4</button>
-        <button class="chord-btn">|</button>
-        <label for="playModeSelect">目前：</label>
+      <div class="chord-mode-switch" role="group" aria-label="和弦輸入模式">
+        <button id="chordNameModeBtn" aria-pressed="true">和弦名稱</button>
+        <button id="chordDegreeModeBtn" aria-pressed="false">級數</button>
+      </div>
+      <p id="chordModeHint" class="chord-mode-hint">點選按鈕，在譜面插入和弦名稱。</p>
+      <p class="chord-mode-hint">小調順階以自然小調為準。升降級數相對同主音大調，如小調的 b3、b6、b7。</p>
+      <details class="chord-category" open>
+        <summary>基本順階三和弦</summary>
+        <div id="basicChordGrid" class="chord-grid"></div>
+      </details>
+      <details class="chord-category">
+        <summary>順階七和弦</summary>
+        <div id="seventhChordGrid" class="chord-grid"></div>
+      </details>
+      <details class="chord-category">
+        <summary>常用延伸和弦</summary>
+        <div id="extendedChordGrid" class="chord-grid"></div>
+      </details>
+      <details class="chord-category">
+        <summary>Sus / Add / 其他變化和弦</summary>
+        <div id="suspendedChordGrid" class="chord-grid"></div>
+      </details>
+      <details class="chord-category">
+        <summary>借用和弦</summary>
+        <div id="borrowedChordGrid" class="chord-grid"></div>
+      </details>
+      <details class="chord-category">
+        <summary>次屬和弦</summary>
+        <p class="chord-mode-hint">按鈕下方標示目標；斜線代表「往」，不是轉位低音。</p>
+        <div id="secondaryChordGrid" class="chord-grid"></div>
+      </details>
+      <details class="chord-category" id="customChordCategory">
+        <summary>自訂和弦／級數</summary>
+        <div class="custom-chord-box">
+          <input id="customChordInput" type="text" aria-label="自訂和弦或級數" placeholder="例如 F#m7(b5)、5/7" />
+          <button id="addCustomChordBtn">新增</button>
+        </div>
+        <div id="customChordGrid" class="chord-grid"></div>
+        <p class="chord-mode-hint">自訂內容依原文字插入，不隨調性或模式轉換。</p>
+      </details>
 
-        <select id="playModeSelect">
+      <h3>和弦圖</h3>
+      <button id="openChordDiagramEditorBtn" class="wide-btn" type="button">自訂和弦圖／指型庫</button>
+      <p class="chord-mode-hint">套用後，譜面有同名和弦時會顯示指型圖。</p>
+
+      <h3>譜面符號</h3>
+      <div class="chord-grid">
+        <button class="chord-btn" data-chord="|" aria-label="插入小節線">|</button>
+        <button class="chord-btn" data-chord="-" aria-label="插入延長符號">－</button>
+      </div>
+      <h3>譜面轉調</h3>
+      <div class="play-mode-controls">
+        <label for="playModeSelect">目前：</label>
+        <select id="playModeSelect" class="sidebar-select">
           <option value="C">Play C</option>
           <option value="G">Play G</option>
         </select>
-
-<button id="playModeBtn">切換 Play 模式</button>
-        <button class="chord-btn">-</button>
+        <button id="playModeBtn">切換 Play 模式</button>
       </div>
+      <p class="chord-mode-hint">轉調只更動和弦名稱，級數文字保持原樣。</p>
 
       <h3>段落</h3>
       <div class="section-grid">
@@ -136,7 +218,56 @@ Tempo：80
     </section>
   </main>
 
+  <dialog id="chordDiagramDialog" class="diagram-dialog" aria-labelledby="chordDiagramDialogTitle">
+    <form id="chordDiagramForm">
+      <div class="diagram-dialog-header">
+        <h2 id="chordDiagramDialogTitle">自訂和弦圖</h2>
+        <button id="closeChordDiagramEditorBtn" type="button">關閉</button>
+      </div>
+      <label for="diagramTemplateSelect">載入現有指型（載入後需按「套用到專案」才生效）</label>
+      <select id="diagramTemplateSelect" class="sidebar-select"></select>
+      <div class="diagram-editor-layout">
+        <div>
+          <div class="diagram-name-fields">
+            <label>和弦名稱
+              <input id="diagramNameInput" type="text" maxlength="80" required placeholder="例如 F#m7" />
+            </label>
+            <label>起始品位
+              <input id="diagramStartFretInput" type="number" min="1" max="21" step="1" value="1" required />
+            </label>
+          </div>
+          <p class="chord-mode-hint">下方由第六弦（最粗）到第一弦（最細）。按弦填實際品位，指板顯示連續四品。</p>
+          <div id="diagramStringFields" class="diagram-string-fields"></div>
+          <div class="diagram-barre-header">
+            <h3>橫按</h3>
+            <button id="addDiagramBarreBtn" type="button">＋新增橫按</button>
+          </div>
+          <p class="chord-mode-hint">指定品位、起始弦與結束弦。橫按範圍內可選「× 不彈」，橫按線仍會保留；發聲的弦需設為同品或更高品，不能為空弦。最多新增一條；舊存檔的多條橫按會保留，可自行移除。</p>
+          <div id="diagramBarreFields"></div>
+          <label class="diagram-remember">
+            <input id="rememberChordDiagramInput" type="checkbox" />
+            同時記住到我的指型庫（此瀏覽器）
+          </label>
+          <p class="chord-mode-hint">自訂圖會隨專案保存。修改名稱會新增另一個指型，不會刪除原項目。指型依名稱配對，不會自動隨轉調移動把位。</p>
+        </div>
+        <div class="diagram-preview-panel">
+          <h3>即時預覽</h3>
+          <div id="chordDiagramPreview"></div>
+        </div>
+      </div>
+      <p id="chordDiagramStatus" class="diagram-status" role="status" aria-live="polite"></p>
+      <div class="diagram-editor-actions">
+        <button id="applyChordDiagramBtn" type="submit">套用到專案</button>
+        <button id="newChordDiagramBtn" type="button">新增空白指型</button>
+        <button id="deleteProjectDiagramBtn" type="button" disabled>刪除專案自訂圖</button>
+        <button id="deleteLibraryDiagramBtn" type="button" disabled>刪除個人庫指型</button>
+      </div>
+    </form>
+  </dialog>
+
  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+ <script src="js/engine/harmony.js"></script>
+ <script src="js/engine/chord-diagrams.js"></script>
  <script src="js/script.js"></script>
 </body>
 </html>

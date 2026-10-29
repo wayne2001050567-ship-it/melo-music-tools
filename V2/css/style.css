@@ -42,6 +42,10 @@
 }
 
 body {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", "Microsoft JhengHei", sans-serif;
   background: #e9e9e9;
@@ -49,29 +53,71 @@ body {
 }
 
 .topbar {
-  height: 56px;
+  flex: 0 0 auto;
   background: #222;
   color: white;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
   padding: 12px 18px;
-}
-
-.toolbar-gap{
-    width:18px;
-    display:inline-block;
 }
 
 .brand {
   font-size: 18px;
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.toolbar,
+.toolbar-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 }
 
 .toolbar {
-  display: flex;
+  gap: 10px;
+}
+
+.toolbar-group {
+  max-width: 100%;
+  padding: 8px;
+  border: 1px solid #555;
+  border-radius: 10px;
+  background: #303030;
+}
+
+.toolbar-control {
+  display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.toolbar-label {
+  font-size: 13px;
+  color: #ddd;
+}
+
+.toolbar-value {
+  min-width: 3ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.toolbar button {
+  flex: 0 0 auto;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.toolbar-control button {
+  min-width: 34px;
+  padding: 8px;
 }
 
 button {
@@ -90,11 +136,13 @@ button:hover {
 
 .app {
   display: flex;
-  height: calc(100vh - 56px);
+  flex: 1 1 0;
+  min-height: 0;
 }
 
 .sidebar {
   width: 230px;
+  flex-shrink: 0;
   background: #f7f3e8;
   border-right: 1px solid #d5c7a3;
   padding: 16px;
@@ -116,6 +164,119 @@ button:hover {
 .chord-btn,
 .section-btn {
   background: white;
+  border: 1px solid #d7c488;
+}
+
+.chord-key-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.chord-key-controls > div {
+  min-width: 0;
+}
+
+.chord-token-accidental,
+.chord-token-extension {
+  display: inline-block;
+  font-size: 0.7em;
+  position: relative;
+  top: -0.35em;
+  line-height: 1;
+}
+
+.chord-token-quality {
+  font-size: 0.8em;
+}
+
+.chord-btn {
+  min-width: 0;
+  white-space: nowrap;
+  padding: 9px 6px;
+}
+
+.chord-target-hint {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #6c5a40;
+  font-weight: normal;
+}
+
+.sidebar-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.sidebar-select {
+  width: 100%;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid #d7c488;
+  border-radius: 8px;
+  background: white;
+  color: #222;
+  font: inherit;
+  font-size: 14px;
+}
+
+.chord-mode-switch {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.chord-mode-switch button {
+  flex: 1;
+  border: 1px solid #d7c488;
+}
+
+.chord-mode-switch button[aria-pressed="true"] {
+  background: #76552b;
+  color: white;
+}
+
+.chord-mode-hint {
+  margin: 8px 0 12px;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.chord-category {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #ded3ba;
+}
+
+.chord-category summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.chord-category[open] summary {
+  margin-bottom: 10px;
+}
+
+.chord-category .custom-chord-box input {
+  min-width: 0;
+  width: 0;
+}
+
+.play-mode-controls {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.play-mode-controls button {
+  grid-column: 1 / -1;
   border: 1px solid #d7c488;
 }
 
@@ -257,6 +418,11 @@ button:hover {
     margin: 0;
     padding: 0;
     background: white;
+  }
+
+  body {
+    display: block;
+    height: auto;
   }
 
   .topbar,
@@ -430,4 +596,100 @@ button:hover {
 .lyric-row {
   line-height: 1.25;
   min-height: 24px;
+}
+/* 自訂和弦圖編輯器；不參與譜面截圖與列印。 */
+.diagram-dialog {
+  width: min(780px, calc(100% - 32px));
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow: auto;
+  padding: 24px;
+  border: 1px solid #d7c488;
+  border-radius: 14px;
+  background: #fffdf8;
+  color: #222;
+}
+
+.diagram-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.diagram-dialog-header,
+.diagram-barre-header,
+.diagram-editor-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.diagram-dialog h2 { margin: 0 0 12px; }
+.diagram-dialog h3 { margin: 12px 0; font-size: 15px; }
+.diagram-dialog button { border: 1px solid #d7c488; }
+.diagram-dialog button:disabled { opacity: 0.45; cursor: default; }
+
+.diagram-editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.diagram-name-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 100px;
+  gap: 12px;
+}
+
+.diagram-name-fields label,
+.diagram-string-fields label,
+.diagram-barre-row label { display: grid; gap: 6px; font-size: 13px; }
+
+.diagram-dialog input[type="text"],
+.diagram-dialog input[type="number"],
+.diagram-dialog select {
+  min-width: 0;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d7c488;
+  border-radius: 6px;
+  background: white;
+  font: inherit;
+}
+
+.diagram-string-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.diagram-barre-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.diagram-remember { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 14px; }
+.diagram-preview-panel { text-align: center; }
+.diagram-preview-panel .chord-diagram-item { width: 150px; max-width: 100%; margin: 0 auto; font-size: 18px; }
+.diagram-preview-panel .chord-diagram-item svg { width: 100%; height: auto; }
+.chord-diagram-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.diagram-status { min-height: 1.5em; font-size: 14px; line-height: 1.5; }
+.diagram-status[data-error="true"] { color: #a22; }
+.diagram-editor-actions { justify-content: flex-start; }
+#applyChordDiagramBtn { background: #76552b; color: white; }
+
+@media (max-width: 600px) {
+  .diagram-dialog { padding: 16px; }
+  .diagram-editor-layout { grid-template-columns: minmax(0, 1fr); }
+  .diagram-preview-panel { grid-row: 1; }
+  .diagram-barre-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .diagram-barre-row button { grid-column: 1 / -1; }
+}
+
+@media print {
+  .diagram-dialog { display: none !important; }
 }
