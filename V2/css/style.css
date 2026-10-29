@@ -1,3 +1,42 @@
+/* ===== 右側和弦表：由右往左增加欄位 ===== */
+
+.chord-diagram-panel {
+  position: absolute;
+  top: 250px;
+  right: 40px;
+  z-index: 5;
+}
+
+.chord-diagram-list {
+  display: grid;
+
+  /* 每欄 7 個，先往下排列 */
+  grid-auto-flow: column;
+  grid-template-rows: repeat(7, 105px);
+  grid-auto-columns: 70px;
+
+  row-gap: 5px;
+  column-gap: 8px;
+
+  /* 新欄位往左增加 */
+  direction: rtl;
+}
+
+.chord-diagram-item {
+  width: 70px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: bold;
+
+  /* 避免文字受到 rtl 影響 */
+  direction: ltr;
+}
+
+.chord-diagram-item svg {
+  width: 70px;
+  height: auto;
+  display: block;
+}
 * {
   box-sizing: border-box;
 }
@@ -372,4 +411,23 @@ button:hover {
     overflow: hidden;
   }
 
+}
+/* ===== 迷錄吉他譜：緊湊譜行設定 ===== */
+
+/* 縮小譜行上下空間 */
+.score-line:not(.section-line) {
+  padding-top: 2px;
+  padding-bottom: 3px;
+  margin-bottom: 2px;
+}
+
+/* 和弦區高度 */
+.score-line:not(.section-line) .chord-row {
+  min-height: 25px;
+}
+
+/* 歌詞行距 */
+.lyric-row {
+  line-height: 1.25;
+  min-height: 24px;
 }

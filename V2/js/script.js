@@ -7,6 +7,7 @@ const scoreBody = document.getElementById("scoreBody");
 const pageScale = document.getElementById("pageScale");
 const zoomLabel = document.getElementById("zoomLabel");
 const addLineBtn = document.getElementById("addLineBtn");
+const addSharedLyricBtn = document.getElementById("addSharedLyricBtn");
 const addSectionBtn = document.getElementById("addSectionBtn");
 const zoomInBtn = document.getElementById("zoomInBtn");
 const zoomOutBtn = document.getElementById("zoomOutBtn");
@@ -146,8 +147,13 @@ function setActiveLine(line) {
   activeLine.classList.add("active");
 
   const lyricRow = activeLine.querySelector(".lyric-row");
+
   if (lyricRow) {
-    activeLyricRow = lyricRow;
+    if (!activeLine.contains(activeLyricRow)) {
+      activeLyricRow = lyricRow;
+    }
+  } else {
+    activeLyricRow = null;
   }
 }
 
@@ -313,10 +319,13 @@ function createScoreLine(chords = "", lyrics = "輸入歌詞") {
   chordRow.contentEditable = "false";
 
   const lyricRow = document.createElement("div");
-  lyricRow.className = "lyric-row";
-  lyricRow.contentEditable = "true";
-  lyricRow.textContent = lyrics;
+lyricRow.className = "lyric-row";
+lyricRow.contentEditable = "true";
+lyricRow.textContent = lyrics;
 
+// 統一歌詞字體大小與行距
+lyricRow.style.fontSize = lyricFontSize + "px";
+lyricRow.style.lineHeight = lyricLineHeight;
   line.appendChild(chordRow);
   line.appendChild(lyricRow);
 
@@ -386,6 +395,70 @@ function addNewLine() {
   setActiveLine(newLine);
   const lyricRow = newLine.querySelector(".lyric-row");
   lyricRow.focus();
+}
+// ===== 新增同組歌詞 =====
+
+function addSharedLyric() {
+  if (!activeLine || activeLine.classList.contains("section-line")) {
+    alert("請先選取一個有歌詞的譜行。");
+    return;
+  }
+
+  const lyricRows = activeLine.querySelectorAll(".lyric-row");
+
+  if (lyricRows.length === 0) return;
+
+  const newLyricRow = document.createElement("div");
+
+  newLyricRow.className = "lyric-row";
+  newLyricRow.contentEditable = "true";
+  newLyricRow.textContent = "輸入第二段歌詞";
+
+  // 沿用目前的歌詞大小與行距
+  newLyricRow.style.fontSize = lyricFontSize + "px";
+  newLyricRow.style.lineHeight = lyricLineHeight;
+
+  newLyricRow.addEventListener("click", updateCaretInfo);
+  newLyricRow.addEventListener("keyup", updateCaretInfo);
+  newLyricRow.addEventListener("input", updateCaretInfo);
+
+  // 放在同一個譜行的最後
+  activeLine.appendChild(newLyricRow);
+
+  activeLyricRow = newLyricRow;
+  newLyricRow.focus();
+}
+
+// ===== 刪除目前選取的同組歌詞 =====
+
+function deleteSharedLyric() {
+  if (!activeLine || !activeLyricRow) {
+    alert("請先點擊想刪除的歌詞行。");
+    return;
+  }
+
+  const lyricRows = activeLine.querySelectorAll(".lyric-row");
+
+  if (lyricRows.length <= 1) {
+    alert("每組和弦至少需要保留一行歌詞。");
+    return;
+  }
+
+  if (!activeLine.contains(activeLyricRow)) {
+    alert("請先選取想刪除的歌詞行。");
+    return;
+  }
+
+  const rowToDelete = activeLyricRow;
+
+  const remainingRow = Array.from(lyricRows).find(
+    row => row !== rowToDelete
+  );
+
+  rowToDelete.remove();
+
+  activeLyricRow = remainingRow;
+  remainingRow.focus();
 }
 
 function addNewSection() {
@@ -490,6 +563,10 @@ document.querySelectorAll(".section-btn").forEach(button => {
 });
 
 addLineBtn.addEventListener("click", addNewLine);
+addSharedLyricBtn.addEventListener("click", addSharedLyric);
+const deleteSharedLyricBtn = document.getElementById("deleteSharedLyricBtn");
+
+deleteSharedLyricBtn.addEventListener("click", deleteSharedLyric);
 addSectionBtn.addEventListener("click", addNewSection);
 
 zoomInBtn.addEventListener("click", () => {
@@ -505,13 +582,82 @@ zoomOutBtn.addEventListener("click", () => {
 printBtn.addEventListener("click", () => {
   window.print();
 });
+// ===== 匯出 A4 PNG 圖片 =====
 
-document.addEventListener("keydown", event => {
-  if (event.key === "Enter" && event.target.classList.contains("lyric-row")) {
-    event.preventDefault();
-    addNewLine();
+const exportPngBtn = document.getElementById("exportPngBtn");
+
+exportPngBtn.addEventListener("click", async () => {
+
+  const page = document.getElementById("page");
+
+  if (typeof html2canvas === "undefined") {
+    alert("圖片匯出工具尚未載入，請確認網路連線。");
+    return;
+  }
+
+  // 避免重複點擊
+  exportPngBtn.disabled = true;
+  exportPngBtn.textContent = "圖片產生中...";
+
+  try {
+
+    // 等待字體載入
+    if (document.fonts) {
+      await document.fonts.ready;
+    }
+
+const canvas = await html2canvas(page, {
+  scale: 3,
+  useCORS: true,
+  backgroundColor: "#ffffff",
+  logging: false,
+
+  onclone: clonedDocument => {
+
+    // 移除編輯中的選取效果
+    clonedDocument.querySelectorAll(".score-line.active")
+      .forEach(line => line.classList.remove("active"));
+
+    // 匯出圖片時，讓歌詞以一般文字模式渲染
+    clonedDocument.querySelectorAll(".lyric-row")
+      .forEach(row => {
+        row.removeAttribute("contenteditable");
+      });
+
   }
 });
+
+    const imageUrl = canvas.toDataURL("image/png");
+
+    const songTitle =
+      document.querySelector(".song-title")?.textContent.trim()
+      || "迷錄吉他譜";
+
+    const safeTitle = songTitle.replace(/[\\/:*?"<>|]/g, "_");
+
+    const link = document.createElement("a");
+
+    link.download = `${safeTitle}.png`;
+    link.href = imageUrl;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+  } catch (error) {
+
+    console.error("PNG 匯出失敗：", error);
+    alert("圖片匯出失敗，請開啟開發者工具查看錯誤。");
+
+  } finally {
+
+    exportPngBtn.disabled = false;
+    exportPngBtn.textContent = "匯出 PNG";
+
+  }
+
+});
+
 
 bindExistingLines();
 
@@ -539,16 +685,20 @@ function exportProjectData() {
   };
 }
 
-      if (block.classList.contains("score-line")) {
-        return {
-          type: "line",
-          lyrics: block.querySelector(".lyric-row")?.textContent || "",
-          chords: Array.from(block.querySelectorAll(".chord-chip")).map(chip => ({
-            text: chip.textContent,
-            left: Number(chip.dataset.left || 0)
-          }))
-        };
-      }
+if (block.classList.contains("score-line")) {
+  return {
+    type: "line",
+
+    // 儲存同一組和弦下的所有歌詞
+    lyrics: Array.from(block.querySelectorAll(".lyric-row"))
+      .map(row => row.textContent),
+
+    chords: Array.from(block.querySelectorAll(".chord-chip")).map(chip => ({
+      text: chip.textContent,
+      left: Number(chip.dataset.left || 0)
+    }))
+  };
+}
 
       return null;
     }).filter(Boolean)
@@ -591,17 +741,47 @@ function importProjectData(data) {
   scoreBody.appendChild(sectionLine);
 }
 
-    if (block.type === "line") {
-      const line = createScoreLine("", block.lyrics || "");
-      const chordRow = line.querySelector(".chord-row");
+if (block.type === "line") {
 
-      block.chords.forEach(chord => {
-  const left = Number(chord.left) || 0;
-  chordRow.appendChild(createChordChip(chord.text, left));
-});
+  // 相容舊版單行歌詞與新版多行歌詞
+  const lyricsArray = Array.isArray(block.lyrics)
+    ? block.lyrics
+    : [block.lyrics || ""];
 
-      scoreBody.appendChild(line);
-    }
+  // 建立第一行歌詞
+  const line = createScoreLine("", lyricsArray[0] || "");
+
+  const chordRow = line.querySelector(".chord-row");
+
+  // 還原和弦
+  (block.chords || []).forEach(chord => {
+    const left = Number(chord.left) || 0;
+    chordRow.appendChild(createChordChip(chord.text, left));
+  });
+
+  // 還原第二行以後的共用歌詞
+  lyricsArray.slice(1).forEach(lyric => {
+
+    const newLyricRow = document.createElement("div");
+
+    newLyricRow.className = "lyric-row";
+    newLyricRow.contentEditable = "true";
+    newLyricRow.textContent = lyric;
+
+    newLyricRow.style.fontSize = lyricFontSize + "px";
+    newLyricRow.style.lineHeight = lyricLineHeight;
+
+    newLyricRow.addEventListener("click", updateCaretInfo);
+    newLyricRow.addEventListener("keyup", updateCaretInfo);
+    newLyricRow.addEventListener("input", updateCaretInfo);
+
+    line.appendChild(newLyricRow);
+  });
+
+    scoreBody.appendChild(line);
+}
+
+  // 結束 data.blocks.forEach()
   });
 
   bindExistingLines();
@@ -856,3 +1036,247 @@ function transposeSingleChordPart(chordPart, semitones){
 
     return newRoot + chordSuffix;
 }
+// 點擊歌詞時，記住目前選取的歌詞行
+scoreBody.addEventListener("click", event => {
+  const lyricRow = event.target.closest(".lyric-row");
+
+  if (!lyricRow) return;
+
+  const line = lyricRow.closest(".score-line");
+
+  if (!line) return;
+
+  setActiveLine(line);
+  activeLyricRow = lyricRow;
+});
+// ===== 迷錄吉他譜：吉他和弦指型圖 =====
+
+// 建立六弦吉他和弦圖
+function createChordDiagram(name, frets) {
+  const item = document.createElement("div");
+  item.className = "chord-diagram-item";
+
+  const title = document.createElement("div");
+  title.textContent = name;
+  item.appendChild(title);
+
+  // SVG 畫布
+  const svgNS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(svgNS, "svg");
+
+  svg.setAttribute("width", "85");
+  svg.setAttribute("height", "115");
+  svg.setAttribute("viewBox", "0 0 85 115");
+
+  // 六條琴弦（左邊是第六弦，右邊是第一弦）
+  for (let i = 0; i < 6; i++) {
+    const x = 10 + i * 13;
+
+    const string = document.createElementNS(svgNS, "line");
+    string.setAttribute("x1", x);
+    string.setAttribute("y1", 20);
+    string.setAttribute("x2", x);
+    string.setAttribute("y2", 100);
+    string.setAttribute("stroke", "#333");
+    string.setAttribute("stroke-width", "1");
+
+    svg.appendChild(string);
+  }
+
+  // 五條橫線，形成四個琴格
+  for (let i = 0; i < 5; i++) {
+    const y = 20 + i * 20;
+
+    const fret = document.createElementNS(svgNS, "line");
+    fret.setAttribute("x1", 10);
+    fret.setAttribute("y1", y);
+    fret.setAttribute("x2", 75);
+    fret.setAttribute("y2", y);
+    fret.setAttribute("stroke", "#333");
+    fret.setAttribute("stroke-width", i === 0 ? "3" : "1");
+
+    svg.appendChild(fret);
+  }
+// ===== 繪製橫按線條 =====
+
+const barre = chordBarres[name];
+
+if (barre) {
+  const x1 = 10 + (6 - barre.from) * 13;
+  const x2 = 10 + (6 - barre.to) * 13;
+
+  const y = 20 + (barre.fret - 0.5) * 20;
+
+  const barreLine = document.createElementNS(svgNS, "line");
+
+  barreLine.setAttribute("x1", x1);
+  barreLine.setAttribute("y1", y);
+  barreLine.setAttribute("x2", x2);
+  barreLine.setAttribute("y2", y);
+
+  barreLine.setAttribute("stroke", "#222");
+  barreLine.setAttribute("stroke-width", "9");
+  barreLine.setAttribute("stroke-linecap", "round");
+
+  svg.appendChild(barreLine);
+}
+  // 畫出按弦位置與空弦／不彈弦
+  frets.forEach((fretNumber, stringIndex) => {
+    const x = 10 + stringIndex * 13;
+
+    if (fretNumber > 0) {
+      const dot = document.createElementNS(svgNS, "circle");
+      dot.setAttribute("cx", x);
+      dot.setAttribute("cy", 20 + (fretNumber - 0.5) * 20);
+      dot.setAttribute("r", 5);
+      dot.setAttribute("fill", "#222");
+
+      svg.appendChild(dot);
+    } else {
+      const mark = document.createElementNS(svgNS, "text");
+      mark.setAttribute("x", x);
+      mark.setAttribute("y", 13);
+      mark.setAttribute("text-anchor", "middle");
+      mark.setAttribute("font-size", "12");
+      mark.textContent = fretNumber === 0 ? "○" : "×";
+
+      svg.appendChild(mark);
+    }
+  });
+
+  item.appendChild(svg);
+
+  return item;
+}
+
+// ===== 自動產生右側吉他和弦表 =====
+
+// 常用和弦指型：由第六弦到第一弦
+// -1 = 不彈，0 = 空弦，正數 = 琴格
+// ===== 吉他和弦指型資料庫 =====
+// 由第六弦到第一弦
+// -1 = 不彈、0 = 空弦、正數 = 琴格
+
+const chordFingerings = {
+  // 大三和弦
+  C:  [-1, 3, 2, 0, 1, 0],
+  D:  [-1, -1, 0, 2, 3, 2],
+  E:  [0, 2, 2, 1, 0, 0],
+  F:  [1, 3, 3, 2, 1, 1],
+  G:  [3, 2, 0, 0, 0, 3],
+  A:  [-1, 0, 2, 2, 2, 0],
+
+  // 小三和弦
+  Am: [-1, 0, 2, 2, 1, 0],
+  Bm: [-1, 2, 4, 4, 3, 2],
+  Dm: [-1, -1, 0, 2, 3, 1],
+  Em: [0, 2, 2, 0, 0, 0],
+
+  // 屬七和弦
+  B7: [-1, 2, 1, 2, 0, 2],
+  C7: [-1, 3, 2, 3, 1, 0],
+  D7: [-1, -1, 0, 2, 1, 2],
+  E7: [0, 2, 0, 1, 0, 0],
+  G7: [3, 2, 0, 0, 0, 1],
+  A7: [-1, 0, 2, 0, 2, 0],
+
+  // 小七和弦
+  Am7: [-1, 0, 2, 0, 1, 0],
+  Dm7: [-1, -1, 0, 2, 1, 1],
+  Em7: [0, 2, 0, 0, 0, 0],
+
+  // 大七和弦
+  Cmaj7: [-1, 3, 2, 0, 0, 0]
+};
+// ===== 橫按和弦資料 =====
+// fret：橫按琴格
+// from：起始弦（6 = 第六弦）
+// to：結束弦（1 = 第一弦）
+
+const chordBarres = {
+  F: {
+    fret: 1,
+    from: 6,
+    to: 1
+  },
+
+  Bm: {
+    fret: 2,
+    from: 5,
+    to: 1
+  }
+};
+
+const chordDiagramList = document.getElementById("chordDiagramList");
+
+function updateChordDiagrams() {
+  if (!chordDiagramList) return;
+
+  chordDiagramList.innerHTML = "";
+
+  const chordNames = new Set();
+
+  // 從譜面收集所有和弦
+  scoreBody.querySelectorAll(".chord-chip").forEach(chip => {
+    const name = chip.textContent.trim();
+
+    if (name && chordFingerings[name]) {
+      chordNames.add(name);
+    }
+  });
+
+  // 依照和弦出現順序產生指型圖
+  chordNames.forEach(name => {
+    const diagram = createChordDiagram(
+      name,
+      chordFingerings[name]
+    );
+
+    chordDiagramList.appendChild(diagram);
+  });
+}
+
+// 監聽樂譜變化，自動更新和弦表
+const chordDiagramObserver = new MutationObserver(() => {
+  updateChordDiagrams();
+});
+
+chordDiagramObserver.observe(scoreBody, {
+  childList: true,
+  subtree: true,
+  characterData: true
+});
+
+// 初次載入時產生和弦表
+updateChordDiagrams();
+// ===== 歌詞貼上時，自動移除來源格式 =====
+
+document.addEventListener("paste", function (event) {
+  const lyricRow = event.target.closest(".lyric-row");
+
+  // 只有貼在歌詞區域時才處理
+  if (!lyricRow) return;
+
+  event.preventDefault();
+
+  // 只取得純文字，不保留來源網站的字體或樣式
+  const text = event.clipboardData.getData("text/plain");
+
+  // 在目前游標位置插入純文字
+  const selection = window.getSelection();
+
+  if (!selection || selection.rangeCount === 0) return;
+
+  const range = selection.getRangeAt(0);
+
+  range.deleteContents();
+  range.insertNode(document.createTextNode(text));
+
+  // 將游標移到貼上文字的後方
+  range.collapse(false);
+  selection.removeAllRanges();
+  selection.addRange(range);
+
+  // 通知編輯器內容已改變
+  lyricRow.dispatchEvent(new Event("input", { bubbles: true }));
+});

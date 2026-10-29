@@ -12,6 +12,8 @@
 
     <div class="toolbar">
       <button id="addLineBtn">＋新增譜行</button>
+      <button id="addSharedLyricBtn">＋同組歌詞</button>
+      <button id="deleteSharedLyricBtn">－刪除同組歌詞</button>
       <button id="addSectionBtn">＋段落標題</button>
       <button id="deleteBlockBtn">刪除目前行</button>
       <button id="zoomOutBtn">－</button>
@@ -31,7 +33,8 @@
       <button id="saveProjectBtn">儲存專案</button>
       <button id="loadProjectBtn">開啟專案</button>
       <input id="loadProjectInput" type="file" accept=".melo,.json" hidden />
-      <button id="printBtn">列印 / PDF</button>
+     <button id="printBtn">列印 / PDF</button>
+     <button id="exportPngBtn">匯出 PNG</button>
     </div>
   </header>
 
@@ -122,6 +125,10 @@ Tempo：80
               <div class="lyric-row" contenteditable="true">點擊這一行即可編輯</div>
             </div>
           </div>
+          <!-- ===== 右側吉他和弦表 ===== -->
+          <aside class="chord-diagram-panel" id="chordDiagramPanel">
+          <div class="chord-diagram-list" id="chordDiagramList"></div>
+          </aside>
 
         
         </div>
@@ -129,6 +136,7 @@ Tempo：80
     </section>
   </main>
 
-  <script src="js/script.js"></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+ <script src="js/script.js"></script>
 </body>
 </html>
