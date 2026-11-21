@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 310" fill="none">
+  <title>木吉他、黑膠唱片與窗邊植物</title>
+  <g stroke="#B39A7D" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M42 266c88 10 216 10 337-3" opacity=".35"/>
+    <path d="M66 233h65l-6 35H73z" fill="#E7E8DB"/>
+    <path d="M98 234c1-34 0-66-9-99m10 71c15-21 26-42 28-63m-29 68c-21-14-29-32-29-48" stroke="#879476"/>
+    <path d="M88 165c-23-5-33-20-29-35 19 0 31 13 29 35Zm6 24c-20-1-33-12-33-25 19-3 31 10 33 25Zm16-9c-1-20 9-36 25-39 5 18-4 32-25 39Zm-20-34c-15-14-17-30-8-43 15 9 18 25 8 43Z" fill="#D7DDCA" stroke="#879476"/>
+    <g transform="rotate(19 231 149)">
+      <path d="M221 49h17v119h-17z" fill="#E2C9A7"/>
+      <path d="m219 20 21-2 3 34-23 2z" fill="#D4B58F"/>
+      <path d="m216 27 4-1m20-2 5-1m-29 13 5-1m20-2 5-1m-28 13 4-1m20-2 5-1" stroke-width="3"/>
+      <path d="M218 157c-21-16-43-6-44 14-1 14 11 17 5 29-5 10-22 18-21 38 0 27 30 40 58 36 35-4 53-26 44-47-7-17-25-17-28-29-2-10 8-18 5-30-2-10-11-14-19-11Z" fill="#ECD7B7"/>
+      <path d="M214 164c-18-11-32-2-32 12s12 18 5 29c-7 12-23 18-21 36 3 20 23 28 49 25 29-4 44-21 37-37-7-15-23-17-27-29-4-14 7-20 4-30" opacity=".5"/>
+      <circle cx="213" cy="212" r="16" fill="#8F7963"/>
+      <circle cx="213" cy="212" r="20"/>
+      <path d="m197 244 32-4 1 7-32 4z" fill="#A58A6D"/>
+      <path d="m225 29-17 214m20-214-17 214m20-214-17 214m20-214-17 214" stroke="#FAF4E8" stroke-width=".7"/>
+      <path d="m222 68 15-1m-17 14 16-1m-17 15 17-2m-18 15 17-2m-18 16 17-2m-18 16 17-2m-18 16 17-2"/>
+    </g>
+    <g transform="rotate(-9 333 231)">
+      <rect x="282" y="178" width="99" height="93" rx="5" fill="#E2E5D8"/>
+      <circle cx="328" cy="222" r="35" fill="#756E63" stroke="#756E63"/>
+      <circle cx="328" cy="222" r="29" stroke="#918779"/>
+      <circle cx="328" cy="222" r="23" stroke="#918779"/>
+      <circle cx="328" cy="222" r="11" fill="#DFC6A4"/>
+      <circle cx="328" cy="222" r="2" fill="#756E63"/>
+      <path d="M367 191v41l-12 11" stroke="#B59676" stroke-width="3"/>
+      <circle cx="367" cy="190" r="4" fill="#B59676"/>
+      <path d="M289 260h12m61 0h8"/>
+    </g>
+    <path d="m131 65 15-4v26m-15-22v25" stroke="#879476"/>
+    <ellipse cx="127" cy="91" rx="5" ry="3" fill="#D7DDCA" stroke="#879476"/>
+    <ellipse cx="142" cy="88" rx="5" ry="3" fill="#D7DDCA" stroke="#879476"/>
+    <path d="M329 83c6-5 10-5 16 0m-8-8v16" opacity=".4"/>
+    <path d="M299 119c6-2 10 0 13 5" opacity=".4"/>
+  </g>
+</svg>

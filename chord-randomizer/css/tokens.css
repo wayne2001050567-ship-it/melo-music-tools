@@ -1,0 +1,30 @@
+/* MELO. design tokens — reusable without tool-specific selectors. */
+:root {
+  --bg: #F7F4ED;
+  --surface: #FFFEFA;
+  --text: #38332E;
+  --text-muted: #736D64; /* Slightly deeper for readable small text on cream. */
+  --primary: #78866B;
+  --primary-hover: #65745A;
+  --accent: #C98B60;
+  --border: #E5DFD4;
+  --on-primary: #FFFFFF;
+  --primary-ink: #506044;
+  --primary-soft: #EDF0E7;
+  --accent-soft: #F6EBE0;
+  --danger: #925744;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-latin: "Helvetica Neue", Arial, sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --radius-card: 16px;
+  --radius-control: 10px;
+  --shadow-card: 0 5px 24px rgba(56, 51, 46, .035);
+  --motion: 200ms;
+}
