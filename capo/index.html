@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7F4ED" />
+  <title>Capo 對照工具 — MELO. 迷錄音樂工具箱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../chord-randomizer/images/melo-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../chord-randomizer/css/tokens.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header><a class="brand" href="../index.html" aria-label="MELO. 迷錄音樂工具箱首頁">MELO.</a><span>迷錄音樂工具箱</span></header>
+  <main>
+    <h1>Capo 對照工具</h1>
+    <section class="card" aria-label="Capo 調性對照">
+      <div class="play-options" role="group" aria-label="Play 指法">
+        <button type="button" data-play="C" aria-pressed="true">Play C</button>
+        <button type="button" data-play="G" aria-pressed="false">Play G</button>
+      </div>
+      <div class="capo-control">
+        <button id="decrease" type="button" aria-label="Capo 減少一格" disabled>−</button>
+        <div><span class="control-label">Capo</span><output id="position">0 格</output></div>
+        <button id="increase" type="button" aria-label="Capo 增加一格">+</button>
+      </div>
+      <p id="capoHint" class="hint">不使用 Capo</p>
+      <div class="board-scroll" tabindex="0" aria-label="吉他指板，窄螢幕可左右捲動">
+        <svg id="fretboard" viewBox="0 0 780 200" xmlns="http://www.w3.org/2000/svg" role="group" aria-labelledby="boardTitle boardDescription">
+          <title id="boardTitle">六弦吉他指板</title>
+          <desc id="boardDescription">選擇 0 至 12 格移動 Capo。可用 Tab 選擇琴格後按 Enter 或空白鍵，也可使用上方加減按鈕。</desc>
+          <g id="boardDrawing" aria-hidden="true"></g>
+          <g id="fretButtons"></g>
+        </svg>
+      </div>
+      <p class="hint board-hint">點選琴格移動 Capo；0 為不使用。</p>
+      <div class="result" role="status" aria-live="polite" aria-atomic="true">
+        <h2 id="major">C Major</h2>
+        <p id="minor">A minor</p>
+        <p id="combination">Play C + Capo 0</p>
+      </div>
+    </section>
+    <a class="back-link" href="../index.html">返回迷錄工具箱</a>
+  </main>
+  <footer>MELO. · Melo Music Studio</footer>
+</body>
+</html>

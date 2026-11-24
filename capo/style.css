@@ -1,0 +1,46 @@
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font-body); }
+header { max-width: 900px; margin: auto; padding: 16px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
+.brand { font: 800 32px/1 var(--font-latin); letter-spacing: -.07em; color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+header span { font-size: 13px; border-left: 1px solid var(--border); padding-left: 16px; }
+main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+h1 { font-size: 24px; font-weight: 600; margin: 0 0 16px; }
+.card { padding: 24px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+button { font: inherit; color: inherit; min-height: 48px; border: 1px solid var(--border); border-radius: var(--radius-control); background: transparent; cursor: pointer; padding: 10px 20px; transition: background var(--motion), transform var(--motion); touch-action: manipulation; }
+button:disabled { opacity: .4; cursor: default; }
+button:active:not(:disabled) { transform: translateY(1px); }
+:focus-visible { outline: 3px solid var(--primary-ink); outline-offset: 3px; }
+.play-options { display: flex; gap: 8px; justify-content: center; }
+.play-options button { min-width: 112px; }
+.play-options [aria-pressed=true] { background: var(--primary-hover); border-color: transparent; color: var(--on-primary); }
+.capo-control { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 20px; }
+.capo-control button { width: 48px; padding: 8px; font-size: 24px; }
+.capo-control > div { min-width: 88px; }
+.control-label { display: block; color: var(--text-muted); font: 14px var(--font-latin); }
+output { display: block; font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.hint { color: var(--text-muted); font-size: 14px; margin: 8px 0; }
+.board-scroll { overflow-x: auto; margin-top: 16px; border-radius: 8px; }
+#fretboard { display: block; width: 100%; min-width: 650px; height: auto; }
+.neck { fill: var(--accent-soft); stroke: var(--border); }
+.string { stroke: #A99B88; }
+.fret { stroke: #BFB7A9; stroke-width: 2; }
+.nut { stroke: var(--text-muted); stroke-width: 5; }
+.marker { fill: #CDBEA8; }
+.fret-choice { cursor: pointer; }
+.fret-choice .hit { fill: transparent; }
+.fret-choice text { fill: var(--text-muted); font: 14px var(--font-latin); text-anchor: middle; }
+.fret-choice .capo { fill: var(--primary-ink); opacity: 0; pointer-events: none; }
+.fret-choice[aria-pressed=true] .capo { opacity: 1; }
+.fret-choice[aria-pressed=true] text { fill: var(--primary-ink); font-weight: 700; }
+.fret-choice:focus { outline: none; }
+.fret-choice:focus-visible .hit { stroke: var(--primary-ink); stroke-width: 2; fill: #78866B14; }
+.result { border-top: 1px solid var(--border); margin-top: 16px; padding-top: 20px; overflow-wrap: anywhere; }
+.result h2 { font: 600 clamp(36px, 7vw, 60px)/1.3 var(--font-latin); margin: 0; }
+#minor { font: 400 clamp(22px, 4vw, 30px)/1.4 var(--font-latin); margin: 8px 0; color: var(--primary-ink); }
+#combination { font: 14px/1.6 var(--font-latin); color: var(--text-muted); margin: 12px 0 0; }
+.back-link { display: flex; align-items: center; justify-content: center; min-height: 48px; width: fit-content; margin: 16px auto 0; padding: 8px 16px; border: 1px solid var(--border); border-radius: var(--radius-control); color: var(--text); text-decoration: none; }
+footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 0 16px 24px; }
+@media (hover: hover) { button:hover:not(:disabled), .back-link:hover { background: var(--primary-soft); } .play-options [aria-pressed=true]:hover { background: var(--primary-ink); } .fret-choice:hover .hit { fill: #78866B14; } }
+@media (max-width: 599px) { header { padding: 10px 16px; } .card { padding: 20px 12px; } .board-hint { text-align: left; } }
+@media (prefers-reduced-motion: reduce) { button { transition: none; } button:active:not(:disabled) { transform: none; } }
