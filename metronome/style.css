@@ -1,0 +1,38 @@
+* { box-sizing: border-box; }
+html { color-scheme: light; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font-body); }
+header { max-width: 900px; margin: auto; padding: 16px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
+.brand { font: 800 32px/1 var(--font-latin); letter-spacing: -.07em; color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 44px; }
+header span { font-size: 13px; border-left: 1px solid var(--border); padding-left: 16px; }
+main { max-width: 560px; margin: 24px auto; padding: 0 16px; }
+h1 { font-size: 24px; font-weight: 600; margin: 0 0 16px; }
+.metronome { padding: 28px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-card); box-shadow: var(--shadow-card); }
+button, input, select { font: inherit; color: inherit; min-width: 0; }
+button { min-height: 48px; border: 1px solid var(--border); border-radius: var(--radius-control); background: transparent; cursor: pointer; padding: 10px 16px; transition: background var(--motion), transform var(--motion); touch-action: manipulation; }
+button:disabled { opacity: .4; cursor: default; }
+button:active:not(:disabled) { transform: translateY(1px); }
+:focus-visible { outline: 3px solid var(--primary-ink); outline-offset: 3px; }
+label { font-size: 14px; }
+.tempo { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 8px; }
+.tempo button { flex: 0 0 56px; padding-inline: 8px; }
+.bpm-field { min-width: 0; }
+.bpm-field input { display: block; width: 160px; max-width: 100%; padding: 0; border: 0; border-radius: 6px; background: transparent; text-align: center; font: 600 clamp(52px, 12vw, 80px)/1.2 var(--font-latin); appearance: textfield; }
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.bpm-field span, .hint, .beat-text, #status { color: var(--text-muted); font-size: 14px; }
+.beats { display: flex; justify-content: center; gap: 14px; margin-top: 28px; }
+.beat { width: 28px; height: 28px; border-radius: 50%; background: var(--border); transition: background 150ms; }
+.beat.active { background: var(--primary); }
+.beat:first-child.active { background: var(--accent); }
+.beat-text { font-variant-numeric: tabular-nums; margin: 12px 0 24px; }
+.meter { display: flex; align-items: center; justify-content: center; gap: 12px; }
+select { padding: 8px 12px; min-height: 44px; border: 1px solid var(--border); border-radius: var(--radius-control); background: var(--surface); }
+select:disabled { opacity: .6; }
+.hint { margin: 8px 0 24px; }
+.actions { display: flex; gap: 12px; }
+.actions button { flex: 1; }
+#start { background: var(--primary-hover); color: var(--on-primary); border-color: transparent; }
+#status { min-height: 23px; margin: 14px 0 0; }
+footer { text-align: center; color: var(--text-muted); font-size: 12px; padding: 0 16px 24px; }
+@media (hover: hover) { button:hover:not(:disabled) { background: var(--primary-soft); } #start:hover:not(:disabled) { background: var(--primary-ink); } }
+@media (max-width: 399px) { header { padding: 10px 16px; } header span { font-size: 12px; } .metronome { padding: 24px 16px; } .tempo { gap: 8px; } .tempo button { flex-basis: 48px; } }
+@media (prefers-reduced-motion: reduce) { button, .beat { transition: none; } button:active:not(:disabled) { transform: none; } }

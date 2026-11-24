@@ -16,539 +16,115 @@
 <body>
   <header class="site-header focus-hide">
     <a class="brand" href="../index.html" aria-label="MELO. 迷錄音樂工具箱首頁">
-      <span class="brand-mark">MELO.</span>
-      <span class="brand-name">迷錄音樂工具箱<br>Melo Music Studio</span>
+      <span class="brand-mark">MELO.</span><span class="brand-name">迷錄音樂工具箱</span>
     </a>
-    <a class="header-link" href="../index.html">回到工具箱</a>
+    <img class="brand-art" src="images/milk-frog.png" alt="" width="72" height="64" />
   </header>
   <main class="page">
-    <section class="hero focus-hide" aria-labelledby="toolTitle">
-      <div class="hero-copy">
-        <p class="eyebrow">CHORD PRACTICE / 01</p>
-        <h1 id="toolTitle">隨機和弦練習器</h1>
-        <p class="tagline">今天，來練點不一樣的。</p>
-        <p class="small">幾個和弦，一點新的可能。<br>自由組合和弦進行，或跟著節拍，把每一次轉換練得更自在。</p>
-      </div>
-      <img class="hero-art" src="images/milk-frog.png" alt="" width="420" height="310" />
-    </section>
     <div class="mode-bar focus-hide">
-      <div class="mode-picker">
-        <label for="practiceMode">今天怎麼練？</label>
+      <h1 class="mode-heading">
+        <label class="sr-only" for="practiceMode">選擇練習模式</label>
         <select id="practiceMode" onchange="switchPracticeMode()">
-          <option value="progression">隨機進行</option>
-          <option value="practice">無限和弦練習</option>
+          <option value="seconds">秒數反應練習器</option>
+          <option value="practice" selected>無限和弦練習器</option>
+          <option value="progression">隨機和弦練習器</option>
         </select>
-      </div>
-      <p class="mode-description" id="modeDescription">抽一組新進行，找找不同的聲音。</p>
+      </h1>
     </div>
     <div class="workspace">
-      <aside class="focus-hide" aria-label="和弦與常用設定">
-        <section class="card input-card" aria-labelledby="inputHeading">
-          <div class="card-header"><h2 id="inputHeading">你的和弦口袋</h2><span class="section-caption">CHORDS</span></div>
-          <label for="chords">想練哪些和弦？</label>
-          <textarea id="chords" rows="4" placeholder="例如：C Am F G
-Dm Em Bm7-5" aria-describedby="chordHint"></textarea>
-          <p class="hint" id="chordHint">用空格、逗號或換行分隔，就可以了。</p>
-          <div class="button-group">
-            <button class="secondary-btn" onclick="saveFavoriteChords()">儲存常用</button>
-            <button class="secondary-btn" onclick="loadFavoriteChords()">載入常用</button>
-            <button class="text-btn" onclick="clearFavoriteChords()">清除常用</button>
+      <section id="practiceStage" class="card practice-stage" aria-label="和弦練習區">
+        <div class="stage-top">
+          <span id="stageMode">BPM 無限練習</span>
+          <button id="focusPractice" class="quiet-btn" type="button" aria-pressed="false" onclick="toggleFocusMode()">專注練習</button>
+        </div>
+        <p class="sr-only" id="currentLabel">目前和弦</p>
+        <strong class="practice-chord" id="currentChord" aria-labelledby="currentLabel">—</strong>
+        <div class="next-chord-row" id="nextChordPreview"><span>下一個</span><strong id="nextChord">—</strong></div>
+        <div class="result" id="result" role="status" hidden>尚未產生</div>
+        <div class="progress-area" id="progressArea">
+          <div class="beat-track" id="beatTrack" aria-hidden="true"></div>
+          <div class="beat-display" id="practiceBeat">尚未開始</div>
+          <progress id="countdownProgress" max="1" value="1" aria-label="倒數進度" hidden></progress>
+          <div class="timer-box" id="timerDisplay" hidden>尚未開始</div>
+        </div>
+        <div class="focus-speed-controls" id="focusSpeedControls"></div>
+        <div class="button-group practice-controls">
+          <button id="startPractice" onclick="startPractice()">開始練習</button>
+          <button id="pausePractice" class="secondary-btn" onclick="togglePause()" disabled>暫停</button>
+          <button id="stopPractice" class="secondary-btn" onclick="stopPractice()" disabled>停止</button>
+        </div>
+        <p class="status-text" id="practiceStatus" role="status">尚未開始</p>
+        <div class="practice-metrics"><span id="practiceTime">已練習 0:00</span></div>
+        <p class="hint" id="progressionRules" hidden>不重複抽取和弦，隨機排列。</p>
+      </section>
+      <aside class="settings-column focus-hide" aria-label="練習設定、和弦管理與進階設定">
+        <details class="card basic-settings" id="basicSettings">
+          <summary>練習設定</summary>
+          <div class="details-content">
+            <div class="quick-settings" id="quickSettings">
+        <div id="progressionSettings" class="progression-settings" hidden>
+          <div class="count-setting"><label for="count">抽幾個和弦</label><input id="count" type="number" min="1" value="4" inputmode="numeric" /></div>
+          <div class="checkbox-row"><input id="enableTimer" type="checkbox" onchange="updatePracticeOptions()" /><label for="enableTimer">使用倒數計時器</label></div>
+        </div>
+        <div class="speed-control" id="secondsControls" hidden>
+          <button id="secondsMinus" class="secondary-btn" onclick="adjustSeconds(-1)" aria-label="減少 1 秒">−1</button>
+          <div class="speed-input"><label class="sr-only" id="timerSecondsLabel" for="timerSeconds">每個和弦秒數</label><input id="timerSeconds" type="number" min="1" value="30" step="1" onchange="changeSeconds()" inputmode="numeric" /><span>秒</span></div>
+          <button id="secondsPlus" class="secondary-btn" onclick="adjustSeconds(1)" aria-label="增加 1 秒">+1</button>
+        </div>
+        <div class="speed-control" id="bpmControls">
+          <button id="bpmMinus" class="secondary-btn" onclick="adjustBpm(-5)" aria-label="減少 5 BPM">−5</button>
+          <div class="speed-input"><label class="sr-only" for="practiceBpm">速度 BPM，30 至 240</label><input id="practiceBpm" type="number" min="30" max="240" value="80" step="1" onchange="changeBpm()" inputmode="numeric" /><span>BPM</span></div>
+          <button id="bpmPlus" class="secondary-btn" onclick="adjustBpm(5)" aria-label="增加 5 BPM">+5</button>
+        </div>
+        <p class="speed-hint" id="speedHint" role="status"></p>
+            </div>
+
+            <div id="sessionSettings">
+              <label for="practiceDuration">練習時間</label>
+              <select id="practiceDuration"><option value="0">不限時</option><option value="60">1 分鐘</option><option value="180">3 分鐘</option></select>
+            </div>
+            <div id="beatSettings">
+              <label for="beatsPerChord">幾拍換和弦</label>
+              <select id="beatsPerChord" onchange="renderBeatTrack()"><option value="2">2 拍</option><option value="3">3 拍</option><option value="4" selected>4 拍</option></select>
+            </div>
           </div>
-          <p class="hint" id="favoriteChordsStatus" role="status"></p>
-          <div class="saved-section">
-            <h3>已儲存的常用和弦</h3>
-            <div class="saved-box" id="savedChordsDisplay">尚未儲存任何常用和弦</div>
-            <p class="hint">常用和弦會留在這台裝置的瀏覽器裡。</p>
+        </details>
+
+        <details class="card input-card" id="chordSettings">
+          <summary>和弦管理</summary>
+          <div class="details-content">
+            <label class="sr-only" for="chords">和弦輸入</label>
+            <textarea id="chords" rows="2" placeholder="C Am F G" aria-describedby="chordHint">C Am F G</textarea>
+            <p class="hint" id="chordHint">空格、逗號或換行分隔。</p>
+            <div class="button-group">
+              <button class="secondary-btn" onclick="saveFavoriteChords()">儲存常用</button>
+              <button class="secondary-btn" onclick="loadFavoriteChords()">載入常用</button>
+              <button class="text-btn" onclick="clearFavoriteChords()">清除常用</button>
+            </div>
+            <p class="hint" id="favoriteChordsStatus" role="status"></p>
+            <div class="saved-section"><h2>已儲存和弦</h2><div class="saved-box" id="savedChordsDisplay">尚未儲存</div></div>
           </div>
-        </section>
-        <p class="input-note">不必一次練得很多。<br>從熟悉的和弦開始，讓手指慢慢記住聲音。</p>
+        </details>
+        <details class="card advanced" id="advancedSettings">
+          <summary>進階設定<span class="acceleration-badge" id="accelerationBadge">加速關閉</span></summary>
+          <div class="details-content">
+            <div id="bpmSettings">
+              <div class="checkbox-row"><input id="enableAcceleration" type="checkbox" onchange="updatePracticeOptions()" /><label for="enableAcceleration">漸進加速</label></div>
+              <div id="accelerationSettings" hidden>
+                <label for="accelerationSeconds">每幾秒增加 1 BPM</label><select id="accelerationSeconds"><option value="3">3 秒</option><option value="5">5 秒</option><option value="10">10 秒</option></select>
+                <label for="maxPracticeBpm">最高 BPM</label><input id="maxPracticeBpm" type="number" min="30" max="240" value="120" />
+              </div>
+              <div class="checkbox-row"><input id="practiceSound" type="checkbox" checked /><label for="practiceSound">節拍聲（首拍加重音）</label></div>
+            </div>
+          </div>
+        </details>
       </aside>
-      <div class="tool-column">
-        <section id="progressionSettings" class="card focus-hide" aria-labelledby="progressionHeading">
-          <div class="card-header"><h2 id="progressionHeading">練習設定</h2><span class="section-caption">SET UP</span></div>
-          <div class="row">
-            <div>
-              <label for="count">抽幾個和弦</label>
-              <input id="count" type="number" min="1" value="4" />
-            </div>
-            <div>
-              <label for="timerSeconds">倒數秒數</label>
-              <input id="timerSeconds" type="number" min="1" value="30" />
-            </div>
-          </div>
-          <div class="checkbox-row">
-            <input type="checkbox" id="enableTimer" />
-            <label for="enableTimer">產生進行後，自動開始倒數</label>
-          </div>
-          <button class="full-width" onclick="generateChords()">產生隨機進行</button>
-        </section>
-        <section id="progressionOutput" class="card focus-hide" aria-labelledby="resultHeading">
-          <div class="card-header"><h2 id="resultHeading">這次，試試這樣彈</h2><span class="section-caption">YOUR PROGRESSION</span></div>
-          <div class="result" id="result" role="status">和弦準備好，就開始吧。</div>
-          <h3>倒數計時</h3>
-          <div class="timer-box" id="timerDisplay">尚未開始</div>
-          <div class="status-text" id="timerStatus" role="status">倒數功能目前未啟用</div>
-          <p class="small" id="progressionRules">從你提供的和弦中不重複抽選，再打亂順序。換一組進行，聽聽不同的可能。</p>
-        </section>
-        <section id="practicePanel" aria-labelledby="practiceHeading" hidden>
-          <div id="practiceSettings" class="card">
-            <div class="card-header"><h2 id="practiceHeading">練習設定</h2><span class="section-caption">SET UP</span></div>
-            <div class="row">
-              <div>
-                <label for="practiceBpm">起始速度 · BPM</label>
-                <input id="practiceBpm" type="number" min="30" max="240" step="1" value="80" aria-describedby="bpmHint" />
-                <p id="bpmHint" class="hint">30–240 BPM</p>
-              </div>
-              <div>
-                <label for="beatsPerChord">幾拍換和弦</label>
-                <select id="beatsPerChord" onchange="renderBeatTrack()">
-                  <option value="2">2 拍</option>
-                  <option value="3">3 拍</option>
-                  <option value="4" selected>4 拍</option>
-                </select>
-              </div>
-              <div>
-                <label for="practiceDuration">練習時間</label>
-                <select id="practiceDuration">
-                  <option value="0">不限時</option>
-                  <option value="60">1 分鐘</option>
-                  <option value="180">3 分鐘</option>
-                </select>
-              </div>
-            </div>
-            <details class="advanced">
-              <summary>進階設定<span class="acceleration-badge" id="accelerationBadge">漸進加速 · 關閉</span></summary>
-              <div class="advanced-content">
-                <div class="checkbox-row">
-                  <input id="enableAcceleration" type="checkbox" onchange="updatePracticeOptions()" />
-                  <label for="enableAcceleration">開啟漸進加速</label>
-                </div>
-                <div class="row" id="accelerationSettings" hidden>
-                  <div>
-                    <label for="accelerationSeconds">每幾秒增加 1 BPM</label>
-                    <select id="accelerationSeconds">
-                      <option value="3">3 秒</option>
-                      <option value="5">5 秒</option>
-                      <option value="10">10 秒</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label for="maxPracticeBpm">最高 BPM</label>
-                    <input id="maxPracticeBpm" type="number" min="30" max="240" step="1" value="120" aria-describedby="maxBpmHint" />
-                    <p class="hint" id="maxBpmHint">不低於起始速度，最高 240。</p>
-                  </div>
-                </div>
-                <p class="hint">從下一拍套用加速，到達最高速度後維持。</p>
-                <div class="checkbox-row">
-                  <input id="practiceSound" type="checkbox" checked />
-                  <label for="practiceSound">播放節拍聲，換和弦第一拍加重音</label>
-                </div>
-              </div>
-            </details>
-          </div>
-          <div id="practiceStage" class="card practice-stage" role="region" aria-label="和弦練習顯示區">
-            <div class="stage-top">
-              <span class="eyebrow">JUST PLAY.</span>
-              <button id="focusPractice" class="quiet-btn" type="button" aria-pressed="false" onclick="toggleFocusMode()">專注練習</button>
-            </div>
-            <p class="current-label">目前和弦</p>
-            <strong class="practice-chord" id="currentChord">—</strong>
-            <div class="next-wrap"><span>接下來</span><strong class="next-chord" id="nextChord">—</strong></div>
-            <div class="beat-track" id="beatTrack" aria-hidden="true"></div>
-            <div class="beat-display" id="practiceBeat">尚未開始</div>
-            <div class="practice-metrics">
-              <span><strong id="livePracticeBpm">—</strong> BPM</span>
-              <span id="practiceTime">已練習 0:00</span>
-            </div>
-            <p class="status-text" id="practiceStatus" role="status">每四拍，一個新的和弦。準備好就開始。</p>
-            <div class="button-group practice-controls">
-              <button id="startPractice" onclick="startPractice()">開始練習</button>
-              <button id="stopPractice" class="danger-btn" onclick="stopPractice()" disabled>停止練習</button>
-            </div>
-          </div>
-        </section>
-      </div>
     </div>
-    <footer class="site-footer focus-hide"><span>MELO. 迷錄音樂工具箱</span><span>迷錄音樂工作室 · Melo Music Studio</span></footer>
+    <footer class="site-footer focus-hide">MELO. · 迷錄音樂工作室</footer>
   </main>
-  <script>
-    let countdownInterval = null;
-
-    let practiceAudio = null;
-    let practiceRunning = false;
-    let practiceStarting = false;
-    let practiceFrame = null;
-    let practiceSession = 0;
-    let practiceVoices = new Set();
-
-    const practiceSettingIds = ["practiceBpm", "beatsPerChord", "enableAcceleration",
-      "accelerationSeconds", "maxPracticeBpm", "practiceDuration"];
-
-    function updatePracticeOptions() {
-      document.getElementById("accelerationSettings").hidden = !document.getElementById("enableAcceleration").checked;
-      document.getElementById("accelerationBadge").textContent = document.getElementById("enableAcceleration").checked
-        ? "漸進加速 · 開啟" : "漸進加速 · 關閉";
-    }
-
-    function switchPracticeMode() {
-      if (practiceRunning || practiceStarting) stopPractice("已切換模式，練習已停止。");
-      stopCountdown();
-      if (document.body.classList.contains("focus-mode")) toggleFocusMode(false);
-      const practice = document.getElementById("practiceMode").value === "practice";
-      document.getElementById("modeDescription").textContent = practice
-        ? "跟著節拍，讓每一次和弦轉換更自在。" : "抽一組新進行，找找不同的聲音。";
-      document.getElementById("practicePanel").hidden = !practice;
-      ["progressionSettings", "progressionOutput", "progressionRules"].forEach(id => {
-        document.getElementById(id).hidden = practice;
-      });
-      document.getElementById("timerDisplay").textContent = "尚未開始";
-      document.getElementById("timerStatus").textContent = document.getElementById("enableTimer").checked
-        ? "倒數功能已啟用，等待開始" : "倒數功能目前未啟用";
-    }
-
-    function formatPracticeTime(seconds) {
-      const whole = Math.max(0, Math.floor(seconds));
-      return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
-    }
-
-    function pickPracticeChord(chords, previous) {
-      const choices = chords.length > 1 ? chords.filter(chord => chord !== previous) : chords;
-      return choices[Math.floor(Math.random() * choices.length)];
-    }
-
-    function stopPractice(message = "練習已停止，可調整設定後重新開始。") {
-      practiceSession++;
-      practiceRunning = false;
-      practiceStarting = false;
-      cancelAnimationFrame(practiceFrame);
-      practiceFrame = null;
-      practiceVoices.forEach(voice => { try { voice.stop(); } catch (_) {} });
-      practiceVoices.clear();
-      document.getElementById("startPractice").disabled = false;
-      document.getElementById("stopPractice").disabled = true;
-      practiceSettingIds.forEach(id => { document.getElementById(id).disabled = false; });
-      document.getElementById("practiceStatus").textContent = message;
-      document.getElementById("practiceBeat").textContent = "已停止";
-    }
-
-    function schedulePracticeClick(time, accent) {
-      if (!document.getElementById("practiceSound").checked) return;
-      const voice = practiceAudio.createOscillator();
-      const gain = practiceAudio.createGain();
-      voice.frequency.value = accent ? 1200 : 800;
-      gain.gain.setValueAtTime(0.0001, time);
-      gain.gain.exponentialRampToValueAtTime(accent ? 0.3 : 0.18, time + 0.003);
-      gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.05);
-      voice.connect(gain);
-      gain.connect(practiceAudio.destination);
-      practiceVoices.add(voice);
-      voice.onended = () => {
-        practiceVoices.delete(voice);
-        voice.disconnect();
-        gain.disconnect();
-      };
-      voice.start(time);
-      voice.stop(time + 0.06);
-    }
-
-    async function startPractice() {
-      if (practiceRunning || practiceStarting) return;
-      const chords = [...new Set(parseChords(document.getElementById("chords").value))];
-      const bpm = Number(document.getElementById("practiceBpm").value);
-      const beats = Number(document.getElementById("beatsPerChord").value);
-      const accelerate = document.getElementById("enableAcceleration").checked;
-      const accelerationSeconds = Number(document.getElementById("accelerationSeconds").value);
-      const maxBpm = Number(document.getElementById("maxPracticeBpm").value);
-      const duration = Number(document.getElementById("practiceDuration").value);
-      const status = document.getElementById("practiceStatus");
-      if (!chords.length) {
-        status.textContent = "請先在上方輸入和弦。";
-        return;
-      }
-      if (!Number.isInteger(bpm) || bpm < 30 || bpm > 240 ||
-          ![2, 3, 4].includes(beats)) {
-        status.textContent = "BPM 請輸入 30–240 的整數，每個和弦請選擇 2、3 或 4 拍。";
-        return;
-      }
-      if (accelerate && (![3, 5, 10].includes(accelerationSeconds) ||
-          !Number.isInteger(maxBpm) || maxBpm < bpm || maxBpm > 240)) {
-        status.textContent = "加速間隔請選擇 3、5 或 10 秒；最高 BPM 請輸入起始速度至 240 之間的整數。";
-        return;
-      }
-      if (![0, 60, 180].includes(duration)) {
-        status.textContent = "練習時長請選擇 1 分鐘、3 分鐘或不限時。";
-        return;
-      }
-      const session = ++practiceSession;
-      practiceStarting = true;
-      document.getElementById("startPractice").disabled = true;
-      document.getElementById("stopPractice").disabled = false;
-      try {
-        if (!practiceAudio) {
-          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-          practiceAudio = new AudioContextClass();
-        }
-        await practiceAudio.resume();
-        if (session !== practiceSession) return;
-        if (practiceAudio.state !== "running") throw new Error("Audio unavailable");
-      } catch (_) {
-        if (session === practiceSession) stopPractice("無法啟動節拍器，請確認瀏覽器允許音訊後再試一次。");
-        return;
-      }
-      practiceStarting = false;
-      practiceRunning = true;
-      stopCountdown();
-      document.getElementById("timerDisplay").textContent = "尚未開始";
-      document.getElementById("timerStatus").textContent = "無限練習中，倒數已停止";
-      practiceSettingIds.forEach(id => { document.getElementById(id).disabled = true; });
-      status.textContent = `每 ${beats} 拍換和弦。${accelerate ? `每 ${accelerationSeconds} 秒增加 1 BPM，上限 ${maxBpm} BPM。` : "固定速度。"}` +
-        (chords.length === 1 ? "目前只有一個和弦，將持續重複。" : "");
-      let current = pickPracticeChord(chords);
-      let next = pickPracticeChord(chords, current);
-      let beat = 0;
-      const startTime = practiceAudio.currentTime + 0.08;
-      const endTime = duration > 0 ? startTime + duration : Infinity;
-      let nextTime = startTime;
-      document.getElementById("livePracticeBpm").textContent = bpm;
-      document.getElementById("practiceTime").textContent = duration > 0
-        ? `剩餘 ${formatPracticeTime(duration)}` : "已練習 0:00";
-      const pending = [];
-      document.getElementById("currentChord").textContent = current;
-      document.getElementById("nextChord").textContent = next;
-      document.getElementById("practiceBeat").textContent = "準備開始";
-      function tick() {
-        if (!practiceRunning || session !== practiceSession) return;
-        const now = practiceAudio.currentTime;
-        const elapsed = Math.max(0, now - startTime);
-        document.getElementById("practiceTime").textContent = duration > 0
-          ? `剩餘 ${formatPracticeTime(Math.ceil(Math.max(0, duration - elapsed)))}`
-          : `已練習 ${formatPracticeTime(elapsed)}`;
-        if (now >= endTime) {
-          stopPractice(`已完成 ${formatPracticeTime(duration)} 的練習！`);
-          return;
-        }
-        // Stop after an interruption rather than replaying missed beats in a burst.
-        if (practiceAudio.state !== "running" || now - nextTime > 0.25) {
-          stopPractice("節拍因頁面或音訊中斷而停止，請重新開始。");
-          return;
-        }
-        if (nextTime < now + 0.1 && nextTime < endTime) {
-          if (beat === beats) {
-            beat = 0;
-            current = next;
-            next = pickPracticeChord(chords, current);
-          }
-          beat++;
-          schedulePracticeClick(nextTime, beat === 1);
-          const beatBpm = accelerate
-            ? Math.min(maxBpm, bpm + Math.floor((nextTime - startTime + 1e-9) / accelerationSeconds))
-            : bpm;
-          pending.push({ time: nextTime, current, next, beat, bpm: beatBpm });
-          nextTime += 60 / beatBpm;
-        }
-        while (pending.length && pending[0].time <= now) {
-          const shown = pending.shift();
-          document.getElementById("livePracticeBpm").textContent = shown.bpm;
-          document.getElementById("currentChord").textContent = shown.current;
-          document.getElementById("nextChord").textContent = shown.next;
-          document.getElementById("practiceBeat").textContent = `第 ${shown.beat} / ${beats} 拍`;
-        }
-        practiceFrame = requestAnimationFrame(tick);
-      }
-      tick();
-    }
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden && (practiceRunning || practiceStarting)) {
-        stopPractice("頁面已切到背景，練習已停止；回到頁面後請重新開始。");
-      }
-    });
-    window.addEventListener("pagehide", () => {
-      if (practiceRunning || practiceStarting) stopPractice();
-    });
-
-    function shuffleArray(array) {
-      const arr = [...array];
-      for (let i = arr.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      return arr;
-    }
-
-    function parseChords(text) {
-      return text
-        .split(/[\s,，]+/)
-        .map(chord => chord.trim())
-        .filter(chord => chord !== "");
-    }
-
-    function updateSavedChordsDisplay() {
-      const saved = localStorage.getItem("favoriteChords");
-      const display = document.getElementById("savedChordsDisplay");
-
-      if (!saved) {
-        display.textContent = "尚未儲存任何常用和弦";
-        return;
-      }
-
-      const parsed = JSON.parse(saved);
-      if (!parsed.length) {
-        display.textContent = "尚未儲存任何常用和弦";
-        return;
-      }
-
-      display.textContent = parsed.join("  /  ");
-    }
-
-    function saveFavoriteChords() {
-      document.getElementById("favoriteChordsStatus").textContent = "";
-      const chordText = document.getElementById("chords").value;
-      const chords = [...new Set(parseChords(chordText))];
-
-      if (chords.length === 0) {
-        alert("請先輸入和弦，才能儲存常用和弦。");
-        return;
-      }
-
-      localStorage.setItem("favoriteChords", JSON.stringify(chords));
-      updateSavedChordsDisplay();
-      document.getElementById("favoriteChordsStatus").textContent = "已儲存常用和弦。";
-    }
-
-    function loadFavoriteChords() {
-      document.getElementById("favoriteChordsStatus").textContent = "";
-      const saved = localStorage.getItem("favoriteChords");
-
-      if (!saved) {
-        alert("目前沒有已儲存的常用和弦。");
-        return;
-      }
-
-      const chords = JSON.parse(saved);
-      document.getElementById("chords").value = chords.join(" ");
-      document.getElementById("favoriteChordsStatus").textContent = "已載入常用和弦。";
-    }
-
-    function clearFavoriteChords() {
-      document.getElementById("favoriteChordsStatus").textContent = "";
-      localStorage.removeItem("favoriteChords");
-      updateSavedChordsDisplay();
-      alert("已清除常用和弦。");
-    }
-
-    function stopCountdown() {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-        countdownInterval = null;
-      }
-    }
-
-    function startCountdown(seconds) {
-      stopCountdown();
-
-      const timerDisplay = document.getElementById("timerDisplay");
-      const timerStatus = document.getElementById("timerStatus");
-
-      let remaining = seconds;
-      timerDisplay.textContent = `${remaining} 秒`;
-      timerStatus.textContent = "倒數中";
-
-      countdownInterval = setInterval(() => {
-        remaining--;
-        if (remaining > 0) {
-          timerDisplay.textContent = `${remaining} 秒`;
-        } else {
-          stopCountdown();
-          timerDisplay.textContent = "時間到";
-          timerStatus.textContent = "本次倒數已結束";
-        }
-      }, 1000);
-    }
-
-    function generateChords() {
-      if (practiceRunning || practiceStarting) stopPractice("已切換至隨機進行模式。");
-      const chordText = document.getElementById("chords").value;
-      const count = parseInt(document.getElementById("count").value, 10);
-      const enableTimer = document.getElementById("enableTimer").checked;
-      const timerSeconds = parseInt(document.getElementById("timerSeconds").value, 10);
-
-      const resultBox = document.getElementById("result");
-      const timerDisplay = document.getElementById("timerDisplay");
-      const timerStatus = document.getElementById("timerStatus");
-
-      const chords = parseChords(chordText);
-
-      if (chords.length === 0) {
-        resultBox.textContent = "請先輸入和弦。";
-        stopCountdown();
-        timerDisplay.textContent = "尚未開始";
-        timerStatus.textContent = "請先輸入和弦";
-        return;
-      }
-
-      if (isNaN(count) || count <= 0) {
-        resultBox.textContent = "請輸入正確的抽取數量。";
-        stopCountdown();
-        timerDisplay.textContent = "尚未開始";
-        timerStatus.textContent = "抽取數量有誤";
-        return;
-      }
-
-      const uniqueChords = [...new Set(chords)];
-
-      if (count > uniqueChords.length) {
-        resultBox.textContent = `你要求抽 ${count} 個，但目前只有 ${uniqueChords.length} 個不重複和弦。`;
-        stopCountdown();
-        timerDisplay.textContent = "尚未開始";
-        timerStatus.textContent = "和弦數量不足";
-        return;
-      }
-
-      const shuffled = shuffleArray(uniqueChords);
-      const selected = shuffled.slice(0, count);
-      const finalProgression = shuffleArray(selected);
-
-      resultBox.textContent = finalProgression.join(" - ");
-
-      if (enableTimer) {
-        if (isNaN(timerSeconds) || timerSeconds <= 0) {
-          timerDisplay.textContent = "尚未開始";
-          timerStatus.textContent = "倒數秒數設定錯誤";
-          alert("請輸入正確的倒數秒數。");
-          return;
-        }
-        startCountdown(timerSeconds);
-      } else {
-        stopCountdown();
-        timerDisplay.textContent = "未啟用";
-        timerStatus.textContent = "倒數功能目前未啟用";
-      }
-    }
-
-    document.getElementById("enableTimer").addEventListener("change", function () {
-      const timerStatus = document.getElementById("timerStatus");
-      const timerDisplay = document.getElementById("timerDisplay");
-
-      if (practiceRunning || practiceStarting) {
-        timerStatus.textContent = "無限練習中，倒數不會啟動";
-        return;
-      }
-
-      if (this.checked) {
-        timerStatus.textContent = "倒數功能已啟用，等待開始";
-        if (!countdownInterval) {
-          timerDisplay.textContent = "尚未開始";
-        }
-      } else {
-        stopCountdown();
-        timerDisplay.textContent = "未啟用";
-        timerStatus.textContent = "倒數功能目前未啟用";
-      }
-    });
-
-    updateSavedChordsDisplay();
-  </script>
+  <script src="js/settings.js"></script>
+  <script src="js/practice-clock.js"></script>
+  <script src="js/practice.js"></script>
   <script src="js/interface.js"></script>
 </body>
 </html>

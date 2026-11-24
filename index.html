@@ -3,131 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Melo Music Tools</title>
+  <title>MELO. 迷錄音樂工具箱</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      min-height: 100vh;
-      padding: 40px 20px;
-      box-sizing: border-box;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 42px;
-      margin-bottom: 8px;
-    }
-
-    .subtitle {
-      color: #ccc;
-      font-size: 18px;
-      margin-bottom: 40px;
-    }
-
-    .tools {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: #222;
-      border-radius: 18px;
-      padding: 28px 20px;
-      text-decoration: none;
-      color: white;
-      transition: 0.2s;
-      border: 1px solid #333;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      background: #2c2c2c;
-    }
-
-    .icon {
-      font-size: 42px;
-      margin-bottom: 12px;
-    }
-
-    .card h2 {
-      margin: 8px 0;
-      font-size: 24px;
-    }
-
-    .card p {
-      color: #bbb;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .coming {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
-    .footer {
-      margin-top: 48px;
-      color: #777;
-      font-size: 14px;
-    }
-  </style>
+  <meta name="theme-color" content="#F7F4ED" />
+  <meta name="description" content="MELO. 迷錄音樂工具箱，免費的音樂練習與創作工具。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="chord-randomizer/images/melo-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="chord-randomizer/css/tokens.css" />
+  <link rel="stylesheet" href="css/home.css" />
 </head>
 
 <body>
-  <div class="container">
-    <h1>🎵 Melo Music Tools</h1>
-    <div class="subtitle">迷錄音樂工作室｜音樂工具箱</div>
+  <div class="container" id="top">
+    <header class="site-header">
+      <h1>MELO.</h1>
+      <p class="subtitle">迷錄音樂工具箱</p>
+      <p class="studio-name" lang="en">Melo Music Studio</p>
+    </header>
+    <main>
 
-    <div class="tools">
+    <div class="tools" id="tools" role="group" aria-label="音樂工具">
       <a class="card" href="random-stop/">
-        <div class="icon">⏱️</div>
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="24" cy="27" r="15"/><path d="M24 12V7m-5-3h10m7 11 4-4M24 19v9l6 4"/></svg></div>
         <h2>隨機停止練琴器</h2>
         <p>隨機時間跳出收尾提示，練習伴奏時臨場收尾。</p>
       </a>
 
       <a class="card" href="V2/">
-        <div class="icon">🎼</div>
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M7 13h34M7 21h34M7 29h16M7 37h16m8-21v20m0-17 9-3v17"/><ellipse cx="27" cy="37" rx="4" ry="3"/><ellipse cx="36" cy="34" rx="4" ry="3"/></svg></div>
         <h2>和弦譜編輯器</h2>
         <p>製作、編輯、排版吉他和弦譜。</p>
       </a>
 
       <a class="card" href="chord-randomizer/">
-        <div class="icon">🎲</div>
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="32" height="32" rx="7"/><circle cx="17" cy="17" r="1.5"/><circle cx="31" cy="17" r="1.5"/><circle cx="24" cy="24" r="1.5"/><circle cx="17" cy="31" r="1.5"/><circle cx="31" cy="31" r="1.5"/></svg></div>
        <h2>隨機和弦產生器</h2>
         <p>隨機抽取和弦進行，搭配倒數計時進行即興與和弦練習。</p>
       </a>
       <a class="card" href="notation-randomizer/">
-        <div class="icon">🎵</div>
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M18 34V12l22-5v22M18 18l22-5"/><ellipse cx="12" cy="35" rx="6" ry="4"/><ellipse cx="34" cy="30" rx="6" ry="4"/></svg></div>
         <h2>隨機簡譜產生器</h2>
         <p>隨機產生簡譜視譜練習，自選音域、升降音、節奏與小節數，加強把位熟悉度與視譜能力。</p>
       </a>
 
-      <div class="card coming">
-        <div class="icon">🥁</div>
+      <a class="card" href="metronome/">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="24" cy="20" rx="16" ry="6"/><path d="M8 20v16c0 8 32 8 32 0V20M9 24l8 14 7-12 7 12 8-14M12 5l16 9M36 4 23 14"/></svg></div>
         <h2>節拍器</h2>
-        <p>Coming Soon</p>
-      </div>
+        <p>調整速度與拍數，跟著節拍穩定練習。</p>
+      </a>
 
-      <div class="card coming">
-        <div class="icon">🎸</div>
+      <div class="card coming" aria-disabled="true">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m29 18 10-10m-3-3 7 7m-12 8-3-3c-5-5-8 1-8 4-4-2-8-1-10 2-5 7 2 16 9 16 5 0 9-4 8-9 4 0 9-5 4-10Z"/><circle cx="21" cy="28" r="3"/><path d="m13 33 5 5m8-15 12-12"/></svg></div>
         <h2>Capo 對照工具</h2>
         <p>Coming Soon</p>
       </div>
     </div>
 
-    <div class="footer">
-      © Melo Music Studio
-    </div>
+    <section class="free-note" aria-labelledby="free-title">
+      <p class="eyebrow" lang="en">FREE TO USE</p>
+      <h2 id="free-title">所有工具，完全免費。</h2>
+      <p>迷錄工具箱希望讓每個喜歡音樂的人，都能更輕鬆地享受練習與創作。這裡的音樂工具皆可免費使用，歡迎分享給需要的朋友。</p>
+    </section>
+
+    <section class="about section-block" id="about" aria-labelledby="about-title">
+      <div class="section-heading">
+        <p class="eyebrow" lang="en">ABOUT MELO</p>
+        <h2 id="about-title">關於迷錄音樂工作室</h2>
+      </div>
+      <div class="about-copy">
+        <p>迷錄音樂工作室致力於讓音樂學習變得更自由、更有趣。我們相信，透過適合自己的學習方式與持續練習，每個人都能找到屬於自己的音樂。</p>
+        <!-- 未來可在此加入實際工作室照片；目前不顯示空白佔位。 -->
+      </div>
+    </section>
+
+    <section class="section-block" id="services" aria-labelledby="services-title">
+      <div class="section-heading">
+        <p class="eyebrow" lang="en">OUR SERVICES</p>
+        <h2 id="services-title">工作室服務</h2>
+      </div>
+      <div class="services">
+        <article class="service-card">
+          <h3>木吉他／電吉他教學</h3>
+          <p>提供適合不同程度的吉他教學。</p>
+        </article>
+        <article class="service-card">
+          <h3>學校吉他社／熱音社指導</h3>
+          <p>提供社團教學與音樂活動相關指導。</p>
+        </article>
+        <article class="service-card">
+          <h3>樂器基礎保養</h3>
+          <p>提供吉他基礎保養相關服務。</p>
+        </article>
+      </div>
+    </section>
+    </main>
+    <footer class="footer">
+      <div><span class="brand-mark">MELO.</span><p lang="en">Melo Music Studio</p></div>
+      <nav aria-label="頁尾導覽">
+        <a href="#tools">音樂工具</a>
+        <a href="#about">關於迷錄</a>
+        <a href="#services">工作室服務</a>
+        <a href="#top">回到頂部</a>
+      </nav>
+      <small lang="en">© 2026 Melo Music Studio.</small>
+    </footer>
   </div>
 </body>
 </html>
