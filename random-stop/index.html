@@ -2,340 +2,297 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>隨機停止練琴器</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#F7F4ED" />
+  <meta name="description" content="在指定時間範圍內隨機播放停止提示音，訓練演奏時的專注力與反應能力。" />
+  <title>隨機停止練琴器 — MELO. 迷錄音樂工具箱</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../chord-randomizer/images/melo-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../chord-randomizer/css/tokens.css" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      text-align: center;
-      padding-top: 60px;
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html { color-scheme: light; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 var(--font-body); }
+    button, input { font: inherit; }
+    a { color: inherit; text-underline-offset: 4px; }
+    :focus-visible { outline: 3px solid var(--primary-ink); outline-offset: 3px; }
+    .site-header { max-width: 900px; margin: auto; padding: 12px 24px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
+    .brand { display: inline-flex; align-items: center; min-height: 44px; text-decoration: none; font: 800 32px/1 var(--font-latin); letter-spacing: -.07em; }
+    .brand-name { font-size: 13px; border-left: 1px solid var(--border); padding-left: 16px; }
+    main, footer { width: min(100% - 32px, 680px); margin-inline: auto; }
+    h1, h2, p { margin: 0; }
+    h1 { font-size: clamp(23px, 4vw, 28px); font-weight: 600; }
+    .subtitle { color: var(--text-muted); font: 14px/1.6 var(--font-latin); margin-top: 2px; }
+    .description { font-size: 14px; color: var(--text-muted); margin: 8px 0 20px; }
+    .trainer { border: 1px solid var(--border); border-radius: var(--radius-card); background: var(--surface); box-shadow: var(--shadow-card); padding: 24px; }
+    .time-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+    .time-setting { min-width: 0; text-align: center; }
+    .time-setting + .time-setting { border-left: 1px solid var(--border); padding-left: 24px; }
+    .time-setting > label { font-size: 14px; }
+    .number-field { display: flex; align-items: baseline; justify-content: center; gap: 4px; margin: 6px 0 10px; }
+    .number-field input { width: 100%; max-width: 150px; min-width: 0; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--text); text-align: center; font: 600 clamp(36px, 6vw, 48px)/1.25 var(--font-latin); appearance: textfield; }
+    input::-webkit-inner-spin-button, input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+    .number-field span { color: var(--text-muted); font-size: 14px; }
+    button, .file-button { min-height: 48px; border: 1px solid transparent; border-radius: var(--radius-control); padding: 10px 16px; background: var(--primary-hover); color: var(--on-primary); font-weight: 600; cursor: pointer; touch-action: manipulation; transition: background var(--motion); }
+    button:hover:not(:disabled) { background: var(--primary-ink); }
+    button:disabled { opacity: .45; cursor: default; }
+    .secondary-btn { background: transparent; color: var(--text); border-color: var(--border); }
+    .secondary-btn:hover:not(:disabled), .file-button:hover { background: var(--primary-soft); }
+    .step-controls { display: flex; justify-content: center; gap: 8px; }
+    .step-controls button { width: 64px; padding: 4px; font-size: 23px; }
+    .setting-message { color: var(--danger); font-size: 14px; margin-top: 12px; }
+    .setting-message:empty { display: none; }
+    .practice { text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+    #status { font-size: 24px; font-weight: 600; }
+    #sessionDetail { min-height: 26px; color: var(--text-muted); font-size: 14px; margin: 4px 0 18px; font-variant-numeric: tabular-nums; }
+    .practice-actions { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .practice-actions.running { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .practice-actions button { min-height: 56px; font-size: 18px; }
+    .sound-settings { margin-top: 12px; border-bottom: 1px solid var(--border); }
+    summary { display: flex; align-items: center; gap: 8px; min-height: 52px; cursor: pointer; list-style: none; font-size: 14px; }
+    summary::-webkit-details-marker { display: none; }
+    .sound-summary { margin-left: auto; max-width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-muted); font-size: 12px; }
+    .chevron { width: 8px; height: 8px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); margin: 0 4px 4px 6px; }
+    details[open] .chevron { transform: rotate(225deg); margin-bottom: -4px; }
+    .sound-content { padding: 4px 0 18px; }
+    .segmented { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; border: 1px solid var(--border); border-radius: var(--radius-control); }
+    .segmented button { background: transparent; color: var(--text-muted); font-size: 14px; }
+    .segmented button[aria-pressed="true"] { background: var(--primary-soft); color: var(--primary-ink); }
+    #uploadArea { margin-top: 14px; }
+    .file-button { display: inline-flex; align-items: center; background: transparent; border-color: var(--border); color: var(--text); font-size: 14px; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+    #soundName, #audioMessage { margin-top: 10px; font-size: 14px; color: var(--text-muted); overflow-wrap: anywhere; }
+    #audioMessage:empty { display: none; }
+    .sound-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .sound-actions button { font-size: 14px; }
+    footer { padding: 20px 0 24px; color: var(--text-muted); font-size: 12px; }
+    footer p + p { margin-top: 4px; }
+    @media (max-width: 599px) {
+      .site-header { padding: 8px 16px; }
+      .brand { font-size: 28px; }
+      .brand-name { font-size: 12px; padding-left: 12px; }
+      .description { margin-bottom: 14px; }
+      .trainer { padding: 18px 14px; }
+      .time-settings { gap: 12px; }
+      .time-setting + .time-setting { padding-left: 12px; }
+      .step-controls button { width: 52px; }
+      .practice { margin-top: 18px; padding-top: 18px; }
+      #status { font-size: 22px; }
+      footer { padding-top: 14px; }
     }
-
-    h1 {
-      font-size: 36px;
-    }
-
-    .box {
-      margin: 20px auto;
-      padding: 30px;
-      max-width: 500px;
-      background: #222;
-      border-radius: 16px;
-    }
-
-    input {
-      padding: 8px;
-      font-size: 18px;
-      margin: 8px;
-    }
-
-    input[type="number"] {
-      width: 80px;
-      text-align: center;
-    }
-
-    input[type="file"] {
-      max-width: 300px;
-      font-size: 14px;
-    }
-
-    .sound-area {
-      margin: 22px 0;
-      padding: 18px;
-      background: #181818;
-      border-radius: 12px;
-    }
-
-    .sound-option {
-      margin: 10px;
-      font-size: 18px;
-    }
-
-    button {
-      font-size: 22px;
-      padding: 12px 28px;
-      margin: 10px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    #startBtn {
-      background: #4caf50;
-      color: white;
-    }
-
-    #stopBtn {
-      background: #f44336;
-      color: white;
-    }
-
-    #testBtn {
-      background: #2196f3;
-      color: white;
-      font-size: 18px;
-    }
-
-    #clearSoundBtn {
-      background: #777;
-      color: white;
-      font-size: 16px;
-    }
-
-    #soundName {
-      font-size: 14px;
-      color: #ccc;
-      margin-top: 8px;
-    }
-
-    #status {
-      margin-top: 30px;
-      font-size: 32px;
-      font-weight: bold;
-    }
-
-    .ending {
-      color: #ff5252;
-      font-size: 72px;
-      animation: flash 0.4s infinite alternate;
-    }
-
-    @keyframes flash {
-      from { opacity: 1; }
-      to { opacity: 0.3; }
-    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
 <body>
-
-  <h1>隨機停止練琴器</h1>
-
-  <div class="box">
-    <p>最短停止時間：
-      <input id="minTime" type="number" value="30"> 秒
-    </p>
-
-    <p>最長停止時間：
-      <input id="maxTime" type="number" value="180"> 秒
-    </p>
-
-    <div class="sound-area">
-      <h2>結尾音效</h2>
-
-      <label class="sound-option">
-        <input type="radio" name="soundMode" value="beep" checked>
-        預設嗶聲
-      </label>
-
-      <label class="sound-option">
-        <input type="radio" name="soundMode" value="custom">
-        自訂 MP3
-      </label>
-
-      <p>
-        <input id="soundFile" type="file" accept="audio/mp3,audio/*">
-      </p>
-
-      <div id="soundName">目前音效：預設嗶聲</div>
-
-      <button id="testBtn" onclick="playEndingSound()">測試播放音效</button>
-      <button id="clearSoundBtn" onclick="clearCustomSound()">清除自訂音效</button>
-    </div>
-
-    <button id="startBtn" onclick="startRandomStop()">開始</button>
-    <button id="stopBtn" onclick="resetTool()">停止 / 重來</button>
-
-    <div id="status">等待開始</div>
-  </div>
-
+  <header class="site-header"><a class="brand" href="../index.html" aria-label="MELO. 迷錄音樂工具箱首頁">MELO.</a><span class="brand-name">迷錄音樂工具箱</span></header>
+  <main>
+    <h1>隨機停止練琴器</h1>
+    <p class="subtitle" lang="en">Random Stop Trainer</p>
+    <p class="description">在指定時間範圍內隨機播放停止提示音，訓練演奏時的專注力與反應能力。</p>
+    <section class="trainer" aria-label="隨機停止練習">
+      <div class="time-settings">
+        <div class="time-setting"><label for="minTime">最短停止時間</label><div class="number-field"><input id="minTime" type="number" min="1" max="2147483" step="1" value="30" inputmode="numeric" aria-describedby="settingMessage" /><span>秒</span></div><div class="step-controls"><button class="secondary-btn" data-field="minTime" data-step="-1" aria-label="最短時間減少 1 秒">−</button><button class="secondary-btn" data-field="minTime" data-step="1" aria-label="最短時間增加 1 秒">＋</button></div></div>
+        <div class="time-setting"><label for="maxTime">最長停止時間</label><div class="number-field"><input id="maxTime" type="number" min="1" max="2147483" step="1" value="180" inputmode="numeric" aria-describedby="settingMessage" /><span>秒</span></div><div class="step-controls"><button class="secondary-btn" data-field="maxTime" data-step="-1" aria-label="最長時間減少 1 秒">−</button><button class="secondary-btn" data-field="maxTime" data-step="1" aria-label="最長時間增加 1 秒">＋</button></div></div>
+      </div>
+      <p id="settingMessage" class="setting-message" role="status"></p>
+      <div class="practice"><h2 id="status" role="status">準備練習</h2><p id="sessionDetail">隨機停止範圍：30–180 秒</p><div id="practiceActions" class="practice-actions"><button id="startBtn" type="button">▶ 開始練習</button><button id="restartBtn" class="secondary-btn" type="button" hidden>重來</button></div></div>
+    </section>
+    <details class="sound-settings" id="soundSettings">
+      <summary><span aria-hidden="true">⚙</span><span>音效設定</span><span class="sound-summary" id="soundSummary">預設嗶聲</span><span class="chevron" aria-hidden="true"></span></summary>
+      <div class="sound-content">
+        <div class="segmented" role="group" aria-label="結尾音效"><button id="beepMode" type="button" aria-pressed="true">預設嗶聲</button><button id="customMode" type="button" aria-pressed="false">自訂 MP3</button></div>
+        <div id="uploadArea" hidden><label class="file-button" for="soundFile">選擇音效檔案</label><input class="sr-only" id="soundFile" type="file" accept="audio/mp3,audio/*" /></div>
+        <p id="soundName">目前音效：預設嗶聲</p>
+        <div class="sound-actions"><button class="secondary-btn" id="testBtn" type="button">測試播放音效</button><button class="secondary-btn" id="clearSoundBtn" type="button" disabled>清除自訂音效</button></div>
+        <p id="audioMessage" role="status"></p>
+      </div>
+    </details>
+  </main>
+  <footer><p>迷錄音樂工作室｜Melo Music Studio</p><p>迷錄工具箱的所有音樂練習工具皆免費使用。</p></footer>
   <script>
-    let timer = null;
-    let endingAudio = null;
-    let db = null;
+    const $ = id => document.getElementById(id);
+    const settingsKey = 'melo-random-stop-times';
+    const maxSeconds = 2147483; // Keep milliseconds within the browser timeout limit.
+    let validTimes = { min: 30, max: 180 };
+    let timer = null, elapsedTimer = null, startedAt = 0, state = 'idle';
+    let endingAudio = null, audioURL = null, audioContext = null, db = null;
+    let soundMode = 'beep', customName = '', soundRevision = 0;
+    const soundFileInput = $('soundFile');
 
-    const soundFileInput = document.getElementById("soundFile");
-    const soundName = document.getElementById("soundName");
-
-    function openDB() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open("RandomStopSoundDB", 1);
-
-        request.onupgradeneeded = function (event) {
-          db = event.target.result;
-          if (!db.objectStoreNames.contains("sounds")) {
-            db.createObjectStore("sounds");
-          }
-        };
-
-        request.onsuccess = function (event) {
-          db = event.target.result;
-          resolve(db);
-        };
-
-        request.onerror = function () {
-          reject("無法開啟資料庫");
-        };
-      });
+    function normalizeTime(value, fallback) {
+      if (String(value).trim() === '' || !Number.isFinite(Number(value))) return fallback;
+      return Math.min(maxSeconds, Math.max(1, Math.round(Number(value))));
     }
-
-    function saveSound(file) {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(["sounds"], "readwrite");
-        const store = transaction.objectStore("sounds");
-
-        store.put(file, "customSound");
-        store.put(file.name, "customSoundName");
-
-        transaction.oncomplete = resolve;
-        transaction.onerror = reject;
-      });
+    function saveTimes() {
+      try { localStorage.setItem(settingsKey, JSON.stringify(validTimes)); }
+      catch { $('settingMessage').textContent = '此瀏覽器無法記住設定，本次仍可正常練習。'; }
     }
-
-    function loadSound() {
-      return new Promise((resolve, reject) => {
-        const transaction = db.transaction(["sounds"], "readonly");
-        const store = transaction.objectStore("sounds");
-
-        const fileRequest = store.get("customSound");
-        const nameRequest = store.get("customSoundName");
-
-        fileRequest.onsuccess = function () {
-          const file = fileRequest.result;
-
-          if (file) {
-            const audioURL = URL.createObjectURL(file);
-            endingAudio = new Audio(audioURL);
-            endingAudio.volume = 1;
-
-            nameRequest.onsuccess = function () {
-              soundName.textContent = "目前音效：" + nameRequest.result + "（已記住）";
-              document.querySelector('input[name="soundMode"][value="custom"]').checked = true;
-              resolve();
-            };
-          } else {
-            soundName.textContent = "目前音效：預設嗶聲";
-            resolve();
-          }
-        };
-
-        fileRequest.onerror = reject;
-      });
+    function commitTimes() {
+      const rawMin = $('minTime').value, rawMax = $('maxTime').value;
+      const min = normalizeTime(rawMin, validTimes.min);
+      const max = Math.max(min, normalizeTime(rawMax, validTimes.max));
+      validTimes = { min, max };
+      $('minTime').value = min; $('maxTime').value = max;
+      $('settingMessage').textContent = String(min) !== rawMin || String(max) !== rawMax ? '已校正時間：請使用正整數，最長時間不得小於最短時間。' : '';
+      saveTimes();
+      if (state === 'idle') renderState();
     }
-
-    function clearCustomSound() {
-      if (!db) return;
-
-      const transaction = db.transaction(["sounds"], "readwrite");
-      const store = transaction.objectStore("sounds");
-
-      store.delete("customSound");
-      store.delete("customSoundName");
-
-      transaction.oncomplete = function () {
-        endingAudio = null;
-        soundFileInput.value = "";
-        soundName.textContent = "目前音效：預設嗶聲";
-        document.querySelector('input[name="soundMode"][value="beep"]').checked = true;
-      };
+    function renderState() {
+      const running = state === 'running';
+      $('status').textContent = running ? '練習進行中' : state === 'ended' ? '練習結束' : '準備練習';
+      $('startBtn').textContent = running ? '停止' : state === 'ended' ? '再練一次' : '▶ 開始練習';
+      $('startBtn').classList.toggle('secondary-btn', running);
+      $('restartBtn').hidden = !running;
+      $('practiceActions').classList.toggle('running', running);
+      if (state === 'idle') $('sessionDetail').textContent = `隨機停止範圍：${validTimes.min}–${validTimes.max} 秒`;
     }
-
-    soundFileInput.addEventListener("change", async function () {
-      const file = soundFileInput.files[0];
-
-      if (!file) return;
-
-      const audioURL = URL.createObjectURL(file);
-      endingAudio = new Audio(audioURL);
-      endingAudio.volume = 1;
-
-      await saveSound(file);
-
-      soundName.textContent = "目前音效：" + file.name + "（已記住）";
-      document.querySelector('input[name="soundMode"][value="custom"]').checked = true;
-    });
-
-    function getSoundMode() {
-      return document.querySelector('input[name="soundMode"]:checked').value;
+    function elapsedText() { return `${((performance.now() - startedAt) / 1000).toFixed(1)} 秒`; }
+    function cancelTimers() {
+      clearTimeout(timer); clearInterval(elapsedTimer);
+      timer = null; elapsedTimer = null;
     }
-
+    function stopAudio() {
+      if (endingAudio) { endingAudio.pause(); endingAudio.currentTime = 0; }
+    }
+    function resetTool() {
+      cancelTimers(); stopAudio(); state = 'idle'; renderState();
+    }
     function startRandomStop() {
-      resetTool();
-
-      const min = Number(document.getElementById("minTime").value);
-      const max = Number(document.getElementById("maxTime").value);
-      const status = document.getElementById("status");
-
-      if (min <= 0 || max <= 0 || min >= max) {
-        status.textContent = "請確認時間設定正確";
-        return;
+      if (state === 'running') return;
+      commitTimes(); stopAudio();
+      // Unlock audio during the user gesture, without playing the custom recording aloud.
+      try {
+        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        audioContext.resume().catch(() => {});
+      } catch { /* Report unsupported audio if playback is requested. */ }
+      if (endingAudio && soundMode === 'custom') {
+        const audio = endingAudio;
+        audio.muted = true;
+        const unlock = audio.play();
+        if (unlock) unlock.then(() => { audio.pause(); audio.currentTime = 0; audio.muted = false; }).catch(() => { audio.muted = false; });
       }
-
-      if (endingAudio && getSoundMode() === "custom") {
-        endingAudio.play().then(() => {
-          endingAudio.pause();
-          endingAudio.currentTime = 0;
-        }).catch(() => {});
-      }
-
-      const randomSeconds = Math.floor(Math.random() * (max - min + 1)) + min;
-
-      status.textContent = "練琴中……隨時準備收尾";
-      status.className = "";
-
+      const randomSeconds = Math.floor(Math.random() * (validTimes.max - validTimes.min + 1)) + validTimes.min;
+      startedAt = performance.now(); state = 'running'; renderState();
+      $('sessionDetail').textContent = '已練習 0.0 秒';
+      elapsedTimer = setInterval(() => { $('sessionDetail').textContent = '已練習 ' + elapsedText(); }, 100);
       timer = setTimeout(() => {
-        status.textContent = "收尾！";
-        status.className = "ending";
+        cancelTimers(); state = 'ended'; renderState();
+        $('sessionDetail').textContent = '本次實際練習 ' + elapsedText();
         playEndingSound();
       }, randomSeconds * 1000);
     }
-
-    function resetTool() {
-      if (timer) {
-        clearTimeout(timer);
-        timer = null;
+    function updateSoundUI() {
+      $('beepMode').setAttribute('aria-pressed', String(soundMode === 'beep'));
+      $('customMode').setAttribute('aria-pressed', String(soundMode === 'custom'));
+      $('uploadArea').hidden = soundMode !== 'custom';
+      const name = soundMode === 'custom' && endingAudio ? customName : '預設嗶聲';
+      $('soundSummary').textContent = name;
+      $('soundName').textContent = soundMode === 'custom' && !endingAudio ? '尚未選擇檔案，暫使用預設嗶聲' : '目前音效：' + name;
+      $('clearSoundBtn').disabled = !endingAudio;
+    }
+    function setCustomAudio(file, name) {
+      stopAudio();
+      if (audioURL) URL.revokeObjectURL(audioURL);
+      audioURL = URL.createObjectURL(file); endingAudio = new Audio(audioURL);
+      endingAudio.volume = 1; customName = name || file.name || '自訂音效';
+      soundMode = 'custom'; updateSoundUI();
+    }
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open('RandomStopSoundDB', 1);
+        request.onupgradeneeded = () => {
+          if (!request.result.objectStoreNames.contains('sounds')) request.result.createObjectStore('sounds');
+        };
+        request.onsuccess = () => { db = request.result; resolve(db); };
+        request.onerror = () => reject(request.error);
+      });
+    }
+    const dbReady = openDB();
+    dbReady.catch(() => { $('audioMessage').textContent = '無法存取音效儲存空間，仍可使用本次選取的音效。'; });
+    async function writeSound(file) {
+      await dbReady;
+      return new Promise((resolve, reject) => {
+        const transaction = db.transaction(['sounds'], 'readwrite');
+        const store = transaction.objectStore('sounds');
+        if (file) { store.put(file, 'customSound'); store.put(file.name, 'customSoundName'); }
+        else { store.delete('customSound'); store.delete('customSoundName'); }
+        transaction.oncomplete = resolve; transaction.onerror = () => reject(transaction.error);
+        transaction.onabort = () => reject(transaction.error);
+      });
+    }
+    async function loadSound() {
+      const revision = soundRevision;
+      try {
+        await dbReady;
+        const transaction = db.transaction(['sounds'], 'readonly');
+        const store = transaction.objectStore('sounds');
+        const file = store.get('customSound'), name = store.get('customSoundName');
+        transaction.oncomplete = () => {
+          if (file.result && revision === soundRevision) setCustomAudio(file.result, name.result);
+        };
+      } catch { /* The database warning is displayed by dbReady. */ }
+    }
+    async function clearCustomSound() {
+      soundRevision++; stopAudio(); endingAudio = null;
+      if (audioURL) URL.revokeObjectURL(audioURL);
+      audioURL = null; customName = ''; soundFileInput.value = ''; soundMode = 'beep'; updateSoundUI();
+      try { await writeSound(null); $('audioMessage').textContent = '已清除自訂音效。'; }
+      catch { $('audioMessage').textContent = '本次已清除，但無法更新儲存空間；重新開頁後可能恢復舊音效。'; }
+    }
+    async function playEndingSound() {
+      $('audioMessage').textContent = '';
+      try {
+        if (soundMode === 'custom' && endingAudio) {
+          endingAudio.muted = false; endingAudio.currentTime = 0; await endingAudio.play();
+        } else {
+          audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+          await audioContext.resume();
+          const oscillator = audioContext.createOscillator(), gain = audioContext.createGain();
+          oscillator.type = 'sine'; oscillator.frequency.value = 880;
+          oscillator.connect(gain); gain.connect(audioContext.destination);
+          gain.gain.setValueAtTime(0.5, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 1.2);
+          oscillator.start(); oscillator.stop(audioContext.currentTime + 1.2);
+          oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+        }
+      } catch {
+        $('audioMessage').textContent = '音效無法播放，請確認檔案可播放，並按測試播放重試。';
+        $('soundSettings').open = true;
       }
-
-      const status = document.getElementById("status");
-      status.textContent = "等待開始";
-      status.className = "";
     }
-
-    function playEndingSound() {
-      if (getSoundMode() === "custom" && endingAudio) {
-        endingAudio.currentTime = 0;
-        endingAudio.play().catch(() => {
-          alert("音效被瀏覽器擋住，請先按開始或測試播放一次");
-        });
-      } else {
-        playBeep();
+    for (const id of ['minTime', 'maxTime']) {
+      $(id).addEventListener('change', commitTimes);
+      $(id).addEventListener('keydown', event => { if (event.key === 'Enter') { commitTimes(); $(id).blur(); } });
+    }
+    document.querySelectorAll('[data-step]').forEach(button => button.addEventListener('click', () => {
+      const input = $(button.dataset.field);
+      input.value = normalizeTime(input.value, validTimes[button.dataset.field === 'minTime' ? 'min' : 'max']) + Number(button.dataset.step);
+      commitTimes();
+    }));
+    $('startBtn').addEventListener('click', () => state === 'running' ? resetTool() : startRandomStop());
+    $('restartBtn').addEventListener('click', () => { resetTool(); startRandomStop(); });
+    $('beepMode').addEventListener('click', () => { soundRevision++; soundMode = 'beep'; updateSoundUI(); });
+    $('customMode').addEventListener('click', () => { soundRevision++; soundMode = 'custom'; updateSoundUI(); });
+    $('testBtn').addEventListener('click', playEndingSound);
+    $('clearSoundBtn').addEventListener('click', clearCustomSound);
+    soundFileInput.addEventListener('change', async () => {
+      const file = soundFileInput.files[0]; if (!file) return;
+      if (!file.size || (file.type && !file.type.startsWith('audio/'))) {
+        $('audioMessage').textContent = '請選擇有效的音效檔案。'; soundFileInput.value = ''; return;
       }
-    }
-
-    function playBeep() {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gainNode = audioCtx.createGain();
-
-      oscillator.type = "sine";
-      oscillator.frequency.value = 880;
-
-      oscillator.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-
-      oscillator.start();
-      gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
-      oscillator.stop(audioCtx.currentTime + 1.2);
-    }
-
-    async function init() {
-      await openDB();
-      await loadSound();
-    }
-
-    init();
+      soundRevision++; setCustomAudio(file, file.name);
+      try { await writeSound(file); $('audioMessage').textContent = '已記住自訂音效。'; }
+      catch { $('audioMessage').textContent = '音效可供本次使用，但無法儲存至此瀏覽器。'; }
+    });
+    try {
+      const saved = JSON.parse(localStorage.getItem(settingsKey));
+      if (saved && Number.isInteger(saved.min) && Number.isInteger(saved.max) && saved.min > 0 && saved.max >= saved.min && saved.max <= maxSeconds) validTimes = { min: saved.min, max: saved.max };
+    } catch { /* Use defaults if stored data is unavailable or invalid. */ }
+    $('minTime').value = validTimes.min; $('maxTime').value = validTimes.max;
+    renderState(); updateSoundUI(); loadSound();
   </script>
-
 </body>
 </html>

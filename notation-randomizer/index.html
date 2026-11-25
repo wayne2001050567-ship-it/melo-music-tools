@@ -2,1022 +2,148 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>隨機簡譜產生器</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>隨機簡譜產生器 — MELO. 迷錄音樂工具箱</title>
+<link rel="icon" href="../chord-randomizer/images/melo-mark.svg" type="image/svg+xml">
 <style>
-/* =========================
-   八分音符連線
-========================= */
-
-/* =========================
-   兩個八分音符一組
-========================= */
-
-.eighth-group {
-    display: inline-grid;
-
-    grid-template-columns: 28px 28px;
-
-    column-gap: 3px;
-
-    position: relative;
-
-    align-items: center;
-    justify-items: center;
-
-    width: 59px;
-
-    padding-bottom: 7px;
-
-    flex-shrink: 1;
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; background: #f7f4ee; color: #403b36; font: 16px/1.5 -apple-system, BlinkMacSystemFont, "PingFang TC", "Microsoft JhengHei", sans-serif; }
+.container { max-width: 1200px; margin: auto; padding: 0 20px 24px; }
+header { display: flex; align-items: center; gap: 20px; padding: 10px 0; border-bottom: 1px solid #ded8cf; margin-bottom: 16px; }
+.brand { display: inline-flex; align-items: center; min-height: 44px; flex-shrink: 0; font: 800 32px/1 "Helvetica Neue", Arial, sans-serif; letter-spacing: -.07em; color: inherit; text-decoration: none; }
+h1 { font-size: 23px; margin: 0; font-weight: 600; }
+h2 { font-size: 17px; margin: 0; }
+.card { min-width: 0; background: #fffdf9; border: 1px solid #ded8cf; border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+.controls { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)) minmax(180px,1.2fr); gap: 12px; align-items: end; }
+.setting { min-width: 0; }
+.setting label { display: block; font-size: 14px; margin-bottom: 5px; }
+select { width: 100%; min-width: 0; min-height: 46px; border: 1px solid #d5cec5; border-radius: 9px; background: #fffdf9; color: inherit; padding: 8px; font: inherit; }
+button { min-height: 44px; border: 1px solid transparent; border-radius: 9px; padding: 9px 14px; cursor: pointer; font: inherit; color: inherit; touch-action: manipulation; }
+.primary-button { background: #8d6b59; color: white; font-weight: 600; min-height: 46px; }
+.primary-button:hover { background: #795b4c; }
+.small-button { background: #eee8df; font-size: 14px; }
+:focus-visible { outline: 3px solid #8d6b59; outline-offset: 3px; }
+#error { color: #a34f45; font-size: 14px; margin: 8px 0 0; }
+#error:empty { display: none; }
+.score-info { font-size: 14px; color: #817970; margin: 4px 0 12px; }
+.score { display: grid; gap: 12px; min-width: 0; }
+.score-line { width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-x: contain; padding: 4px 0 8px; }
+.score-line-inner { display: flex; width: 100%; min-width: var(--line-min); }
+/* Every measure and every beat uses the same grid width within a question. */
+.bar { flex: 0 0 calc(var(--bar-width) * 1px); width: calc(var(--bar-width) * 1px); display: grid; grid-template-columns: repeat(var(--beats), minmax(0, 1fr)); align-items: start; gap: var(--beat-gap, 18px); padding: 8px var(--bar-pad, 12px); border-right: 2px solid #514a44; }
+.bar:first-child { border-left: 2px solid #514a44; }
+.beat-slot { display: flex; justify-content: center; align-items: flex-start; min-width: 0; }
+.beat-group { display: flex; flex: 0 0 auto; gap: var(--note-gap, 3px); position: relative; padding-bottom: 8px; }
+.rhythm-beam { position: absolute; height: 2px; background: currentColor; bottom: 10px; pointer-events: none; }
+.rhythm-beam.secondary { bottom: 5px; }
+.rhythm-item { display: flex; align-items: center; flex: 0 0 auto; gap: 8px; }
+.note { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: var(--note-cell, 24px); height: 48px; font: 600 var(--note-font, 30px)/1 Arial, sans-serif; }
+.note.has-accidental { width: calc(var(--note-cell, 24px) + var(--accidental-space, 12px)); padding-left: var(--accidental-space, 12px); }
+.digit { position: relative; display: inline-flex; align-items: center; justify-content: center; width: var(--digit-width, 18px); height: 48px; }
+.note.high .digit::before, .note.low .digit::after { content: "•"; position: absolute; left: 50%; transform: translateX(-50%); font-size: 13px; line-height: 1; }
+.note.high .digit::before { top: -1px; }
+.note.low .digit::after { bottom: -1px; }
+.beat-group.has-low { padding-bottom: 17px; }
+.accidental { position: absolute; left: 0; top: 5px; width: var(--accidental-space, 12px); text-align: center; font: 400 var(--accidental-font, 15px)/1 Arial, sans-serif; }
+.duration-dash { display: inline-flex; align-items: center; justify-content: center; width: var(--note-cell, 24px); height: 48px; font-size: var(--note-font, 28px); }
+summary { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; min-height: 44px; cursor: pointer; list-style: none; font-weight: 600; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "展開 ＋"; margin-left: auto; font-size: 14px; color: #817970; font-weight: 400; }
+details[open] > summary::after { content: "收合 −"; }
+.selection-summary { min-width: 0; overflow-wrap: anywhere; font-size: 14px; color: #817970; font-weight: 400; }
+.selection-content { padding-top: 12px; }
+.selection-actions, .tabs, .note-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.selection-actions { margin-bottom: 12px; }
+.tabs { border-bottom: 1px solid #ded8cf; padding-bottom: 8px; margin-bottom: 12px; }
+.tabs button { flex: 1; background: transparent; border-color: #ded8cf; }
+.tabs button[aria-selected="true"] { background: #eee8df; border-color: #8d6b59; }
+.note-option { position: relative; }
+.note-option input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.note-option label { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid #d8d1c7; border-radius: 9px; padding: 7px 10px; cursor: pointer; font-size: 17px; font-weight: 600; }
+.note-option input:checked + label { background: #8d6b59; color: white; border-color: #8d6b59; }
+.note-option input:focus-visible + label { outline: 3px solid #8d6b59; outline-offset: 3px; }
+.accidental-settings { margin-top: 12px; }
+.accidental-settings summary { font-size: 14px; font-weight: 400; }
+.accidental-settings .note-grid { padding-top: 8px; }
+.octave-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+@media (max-width: 599px) {
+ .container { padding: 0 12px 16px; }
+ header { gap: 14px; padding: 6px 0; margin-bottom: 10px; }
+ .brand { font-size: 28px; }
+ h1 { font-size: 19px; }
+ .card { padding: 12px; margin-bottom: 10px; }
+ .controls { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
+ .primary-button { grid-column: 1 / -1; }
+ select { font-size: 14px; padding-inline: 4px; }
+ .selection-summary { flex-basis: 100%; order: 3; }
 }
-
-
-/* 共同八分音符線 */
-
-.eighth-group::after {
-    content: "";
-
-    position: absolute;
-
-    left: 2px;
-    right: 2px;
-
-    bottom: 4px;
-
-    height: 2px;
-
-    background: currentColor;
-}
-/* 八分音符組裡面的音，不要自己佔太多寬度 */
-
-.eighth-group .rhythm-item {
-    min-width: 0;
-    gap: 0;
-}
-
-.eighth-group .note {
-    min-width: 28px;
-    width: 28px;
-
-    padding-left: 0;
-    padding-right: 0;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 30px 20px 60px;
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "PingFang TC",
-        "Microsoft JhengHei",
-        sans-serif;
-
-    background: #f7f4ee;
-    color: #403b36;
-}
-
-.container {
-    max-width: 1200px;
-    margin: auto;
-}
-
-/* =========================
-   標題
-========================= */
-
-header {
-    margin-bottom: 30px;
-}
-
-h1 {
-    margin: 0 0 8px;
-    font-size: 34px;
-}
-
-.subtitle {
-    color: #817970;
-    font-size: 15px;
-}
-
-
-/* =========================
-   卡片
-========================= */
-
-.card {
-    background: #fffdf9;
-    border: 1px solid #ded8cf;
-    border-radius: 18px;
-    padding: 22px;
-    margin-bottom: 20px;
-}
-
-.card h2 {
-    margin-top: 0;
-}
-/* =========================
-   一個完整節奏事件
-========================= */
-
-.rhythm-item {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    gap: 6px;
-
-}
-
-
-/* 延長拍 */
-
-.duration-dash {
-
-    display: inline-flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    height: 55px;
-
-    font-size: 28px;
-
-    font-weight: 500;
-
-}
-
-
-/* =========================
-   音域
-========================= */
-
-.octave-section {
-    margin-bottom: 28px;
-}
-
-.octave-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 10px;
-}
-
-.octave-title h3 {
-    margin: 0;
-}
-
-
-/* =========================
-   1～7
-========================= */
-
-.degree-grid {
-    display: grid;
-
-    grid-template-columns:
-        repeat(7, minmax(105px, 1fr));
-
-    gap: 10px;
-}
-
-.degree-box {
-    border: 1px solid #ddd6cc;
-    border-radius: 12px;
-    padding: 8px;
-}
-
-.degree-name {
-    text-align: center;
-    font-size: 13px;
-    color: #958c82;
-    margin-bottom: 6px;
-}
-
-
-/* =========================
-   ♭ 1 ♯
-========================= */
-
-.accidentals {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 4px;
-}
-
-.note-option input {
-    display: none;
-}
-
-.note-option label {
-    height: 42px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    border: 1px solid #d8d1c7;
-    border-radius: 8px;
-
-    cursor: pointer;
-
-    font-size: 17px;
-    font-weight: 600;
-
-    background: white;
-
-    transition: 0.15s;
-}
-
-.note-option label:hover {
-    background: #f2ede5;
-}
-
-.note-option input:checked + label {
-    background: #8d6b59;
-    color: white;
-    border-color: #8d6b59;
-}
-
-
-/* =========================
-   設定
-========================= */
-
-.settings {
-    display: grid;
-
-    grid-template-columns:
-        repeat(3, minmax(160px, 1fr));
-
-    gap: 15px;
-}
-
-.setting label {
-    display: block;
-    font-size: 14px;
-    margin-bottom: 6px;
-}
-
-select {
-    width: 100%;
-
-    padding: 11px;
-
-    border: 1px solid #d5cec5;
-    border-radius: 9px;
-
-    background: white;
-
-    font-size: 16px;
-}
-
-
-/* =========================
-   按鈕
-========================= */
-
-button {
-    border: none;
-    border-radius: 9px;
-
-    padding: 10px 16px;
-
-    cursor: pointer;
-
-    font-size: 14px;
-}
-
-.small-button {
-    background: #eee8df;
-    color: #4c453e;
-}
-
-.primary-button {
-    width: 100%;
-
-    margin-top: 18px;
-
-    padding: 14px;
-
-    background: #8d6b59;
-    color: white;
-
-    font-size: 17px;
-    font-weight: bold;
-}
-
-.primary-button:hover {
-    opacity: 0.9;
-}
-
-
-/* =========================
-   簡譜顯示區
-========================= */
-
-.score-card {
-    overflow: visible;
-}
-
-.score-scroll {
-    width: 100%;
-    overflow: visible;
-    padding: 20px 0;
-}
-
-.score {
-    width: 100%;
-
-    display: grid;
-
-    /* 一行固定四小節 */
-    grid-template-columns: repeat(4, 1fr);
-
-    row-gap: 34px;
-}
-
-
-/* 每個小節 */
-
-.bar {
-    min-width: 0;
-    min-height: 100px;
-
-    display: flex;
-
-    align-items: center;
-
-    /* 不再用 space-evenly */
-    justify-content: space-around;
-
-    gap: 4px;
-
-    padding: 10px 6px;
-
-    border-right: 2px solid #514a44;
-}
-
-
-/* 每一行第一小節 */
-
-.bar:nth-child(4n + 1) {
-    border-left: 2px solid #514a44;
-}
-
-
-/* 手機改成一行兩小節 */
-
-@media (max-width: 700px) {
-
-    .score {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .bar:nth-child(4n + 1) {
-        border-left: none;
-    }
-
-    .bar:nth-child(2n + 1) {
-        border-left: 2px solid #514a44;
-    }
-
-}
-
-
-/* =========================
-   簡譜音符
-========================= */
-
-.note {
-    position: relative;
-
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    min-width: 36px;
-    height: 55px;
-
-    font-size: 31px;
-    font-weight: 600;
-
-    line-height: 1;
-}
-
-
-/* 高音點 */
-
-/* 高音點：靠近數字 */
-.note.high::before {
-    content: "•";
-    position: absolute;
-
-    top: 1px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    font-size: 16px;
-    line-height: 1;
-}
-
-
-/* 低音點：靠近數字，而且位於八分音符底線上方 */
-.note.low::after {
-    content: "•";
-    position: absolute;
-
-    bottom: 3px;
-    left: 50%;
-
-    transform: translateX(-50%);
-
-    font-size: 16px;
-    line-height: 1;
-}
-/* 八分音符有低音點時，把線往下留空間 */
-.note.low.eighth {
-    padding-bottom: 7px;
-}
-
-
-/* 十六分音符也一樣 */
-.note.low.sixteenth {
-    padding-bottom: 7px;
-}
-
-
-/* 升降記號 */
-
-.accidental {
-    font-size: 20px;
-
-    margin-right: 2px;
-
-    font-weight: 400;
-}
-
-
-/* 八分音符 */
-
-.note.eighth {
-    border-bottom: none;
-}
-
-
-/* 十六分音符 */
-
-.note.sixteenth {
-    border-bottom: 5px double currentColor;
-}
-
-
-/* =========================
-   錯誤訊息
-========================= */
-
-#error {
-    color: #a34f45;
-
-    font-size: 14px;
-
-    margin-top: 10px;
-
-    display: none;
-}
-
-
-/* =========================
-   手機
-========================= */
-
-@media (max-width: 900px) {
-
-    .degree-grid {
-        grid-template-columns:
-            repeat(4, minmax(90px, 1fr));
-    }
-
-}
-
-@media (max-width: 600px) {
-
-    body {
-        padding: 20px 12px;
-    }
-
-    h1 {
-        font-size: 27px;
-    }
-
-    .degree-grid {
-        grid-template-columns:
-            repeat(2, minmax(100px, 1fr));
-    }
-
-    .settings {
-        grid-template-columns: 1fr;
-    }
-
+@media (max-height: 500px) and (orientation: landscape) {
+ header { padding-block: 2px; margin-bottom: 8px; }
+ h1 { font-size: 19px; }
+ .card { padding: 10px 12px; margin-bottom: 8px; }
+ .controls { gap: 8px; }
 }
 </style>
 </head>
-
-
 <body>
-
 <div class="container">
-
-<header>
-
-    <h1>隨機簡譜產生器</h1>
-
-    <div class="subtitle">
-        選擇想練習的音，隨機產生視譜練習。
-    </div>
-
-</header>
-
-
-<!-- =====================
-     選音
-===================== -->
-
-<div class="card">
-
-    <h2>選擇出題音</h2>
-
-    <p class="subtitle">
-        每個音皆可獨立選擇 ♭、自然音與 ♯。
-    </p>
-
-    <div style="
-        display:flex;
-        gap:8px;
-        flex-wrap:wrap;
-        margin-bottom:20px;
-    ">
-
-        <button
-            id="naturalAll"
-            class="small-button">
-            全部自然音
-        </button>
-
-        <button
-            id="clearAll"
-            class="small-button">
-            全部清除
-        </button>
-
-    </div>
-
-
-    <div id="noteSelector"></div>
-
+<header><a class="brand" href="../index.html" aria-label="MELO. 迷錄音樂工具箱首頁">MELO.</a><h1>隨機簡譜產生器</h1></header>
+<main>
+<section class="card" aria-label="練習操作">
+ <div class="controls">
+  <div class="setting"><label for="minDuration">最短音符</label><select id="minDuration"><option value="1">四分音符</option><option value="0.5">八分音符</option><option value="0.25">十六分音符</option></select></div>
+  <div class="setting"><label for="meter">拍號</label><select id="meter"><option value="4">4 / 4</option><option value="3">3 / 4</option><option value="2">2 / 4</option></select></div>
+  <div class="setting"><label for="bars">小節數</label><select id="bars"><option value="1">1 小節</option><option value="2">2 小節</option><option value="4" selected>4 小節</option><option value="8">8 小節</option><option value="12">12 小節</option><option value="16">16 小節</option></select></div>
+  <button id="generate" class="primary-button" type="button">產生新題目</button>
+ </div>
+ <p id="error" role="status"></p>
+</section>
+<section class="card score-card" aria-labelledby="scoreTitle"><h2 id="scoreTitle">視譜練習</h2><div id="scoreInfo" class="score-info" role="status"></div><div id="score" class="score"></div></section>
+<details class="card" id="pitchSettings"><summary><span>出題音設定</span><span id="selectionSummary" class="selection-summary">中音 1–7・共 7 個音</span></summary><div class="selection-content">
+ <div class="selection-actions"><button id="naturalAll" class="small-button" type="button">全部自然音</button><button id="clearAll" class="small-button" type="button">全部清除</button></div>
+ <div class="tabs" role="tablist" aria-label="出題音域"></div><div id="noteSelector"></div>
+</div></details>
+</main>
 </div>
-
-
-<!-- =====================
-     練習設定
-===================== -->
-
-<div class="card">
-
-    <h2>練習設定</h2>
-
-    <div class="settings">
-
-        <div class="setting">
-
-            <label>
-                最短音符
-            </label>
-
-            <select id="minDuration">
-
-                <option value="1">
-                    四分音符
-                </option>
-
-                <option value="0.5">
-                    八分音符
-                </option>
-
-                <option value="0.25">
-                    十六分音符
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="setting">
-
-            <label>
-                拍號
-            </label>
-
-            <select id="meter">
-
-                <option value="4">
-                    4 / 4
-                </option>
-
-                <option value="3">
-                    3 / 4
-                </option>
-
-                <option value="2">
-                    2 / 4
-                </option>
-
-            </select>
-
-        </div>
-
-
-        <div class="setting">
-
-            <label>
-                小節數
-            </label>
-
-            <select id="bars">
-
-                <option value="1">
-                    1 小節
-                </option>
-
-                <option value="2">
-                    2 小節
-                </option>
-
-                <option value="4" selected>
-                    4 小節
-                </option>
-
-                <option value="8">
-                    8 小節
-                </option>
-
-                <option value="12">
-                    12 小節
-                </option>
-
-                <option value="16">
-                    16 小節
-                </option>
-
-            </select>
-
-        </div>
-
-    </div>
-
-
-    <button
-        id="generate"
-        class="primary-button">
-
-        🎲 產生新題目
-
-    </button>
-
-    <div id="error"></div>
-
-</div>
-
-
-<!-- =====================
-     題目
-===================== -->
-
-<div class="card score-card">
-
-    <h2>視譜練習</h2>
-
-    <div
-        id="scoreInfo"
-        class="score-info">
-    </div>
-
-
-    <div class="score-scroll">
-
-        <div
-            id="score"
-            class="score">
-        </div>
-
-    </div>
-
-</div>
-
-</div>
-
-
 <script>
-
-/* =========================================
-   基本設定
-========================================= */
-
-const octaveGroups = [
-
-    {
-        name: "低音",
-        value: "low"
-    },
-
-    {
-        name: "中音",
-        value: "middle"
-    },
-
-    {
-        name: "高音",
-        value: "high"
-    }
-
-];
-
-
-const accidentals = [
-
-    {
-        name: "♭",
-        value: "flat"
-    },
-
-    {
-        name: "",
-        value: "natural"
-    },
-
-    {
-        name: "♯",
-        value: "sharp"
-    }
-
-];
-
-
-/* =========================================
-   建立選音介面
-========================================= */
-
-const noteSelector =
-    document.getElementById("noteSelector");
-
-
-octaveGroups.forEach((octave, octaveIndex) => {
-
-    const section =
-        document.createElement("div");
-
-    section.className =
-        "octave-section";
-
-
-    /* 標題 */
-
-    const title =
-        document.createElement("div");
-
-    title.className =
-        "octave-title";
-
-
-    title.innerHTML = `
-
-        <h3>
-            ${octave.name}
-        </h3>
-
-        <button
-            class="small-button octave-natural"
-            data-octave="${octave.value}">
-
-            此音域選自然音
-
-        </button>
-
-    `;
-
-
-    section.appendChild(title);
-
-
-    /* 1～7 */
-
-    const grid =
-        document.createElement("div");
-
-    grid.className =
-        "degree-grid";
-
-
-    for (
-        let number = 1;
-        number <= 7;
-        number++
-    ) {
-
-        const box =
-            document.createElement("div");
-
-        box.className =
-            "degree-box";
-
-
-        const degreeName =
-            document.createElement("div");
-
-        degreeName.className =
-            "degree-name";
-
-        degreeName.textContent =
-            `第 ${number} 音`;
-
-
-        box.appendChild(
-            degreeName
-        );
-
-
-        const row =
-            document.createElement("div");
-
-        row.className =
-            "accidentals";
-
-
-        accidentals.forEach(
-            (accidental, accIndex) => {
-                   /* =========================
-
-           移除不需要的升降音
-
-           ♭1、♯3、♭4、♯7
-
-        ========================= */
-
-        if (
-
-            (number === 1 && accidental.value === "flat") ||
-
-            (number === 3 && accidental.value === "sharp") ||
-
-            (number === 4 && accidental.value === "flat") ||
-
-            (number === 7 && accidental.value === "sharp")
-
-        ) {
-
-            return;
-
-        }
-
-
-
-            const id =
-                `note-${octaveIndex}-${number}-${accIndex}`;
-
-
-            const wrapper =
-                document.createElement("div");
-
-            wrapper.className =
-                "note-option";
-
-
-            const checked =
-
-                octave.value === "middle"
-
-                &&
-
-                accidental.value === "natural"
-
-                ? "checked"
-
-                : "";
-
-
-            wrapper.innerHTML = `
-
-                <input
-                    type="checkbox"
-
-                    id="${id}"
-
-                    data-number="${number}"
-
-                    data-octave="${octave.value}"
-
-                    data-accidental="${accidental.value}"
-
-                    ${checked}
-                >
-
-                <label for="${id}">
-
-                    ${accidental.name}${number}
-
-                </label>
-
-            `;
-
-
-            row.appendChild(
-                wrapper
-            );
-
-        });
-
-
-        box.appendChild(row);
-
-        grid.appendChild(box);
-
-    }
-
-
-    section.appendChild(grid);
-
-    noteSelector.appendChild(section);
-
+const octaveGroups = [{name:'低音',value:'low'},{name:'中音',value:'middle'},{name:'高音',value:'high'}];
+const accidentals = [{name:'♭',value:'flat'},{name:'',value:'natural'},{name:'♯',value:'sharp'}];
+const noteSelector = document.getElementById('noteSelector');
+const score = document.getElementById('score');
+let currentBars = [];
+let activeOctave = 'middle';
+function selectOctave(value) {
+ activeOctave = value;
+ document.querySelectorAll('[role="tab"]').forEach(tab => { const active=tab.dataset.octave===value; tab.setAttribute('aria-selected',active); tab.tabIndex=active?0:-1; });
+ document.querySelectorAll('.octave-section').forEach(panel => panel.hidden=panel.dataset.octave!==value);
+}
+octaveGroups.forEach((octave, oi) => {
+ const tab=document.createElement('button'); tab.type='button'; tab.textContent=octave.name; tab.dataset.octave=octave.value; tab.id='tab-'+octave.value; tab.setAttribute('role','tab'); tab.setAttribute('aria-controls','panel-'+octave.value);
+ tab.addEventListener('click',()=>selectOctave(octave.value));
+ tab.addEventListener('keydown',event=>{ const direction=event.key==='ArrowRight'?1:event.key==='ArrowLeft'?-1:0; if(direction || event.key==='Home' || event.key==='End'){event.preventDefault();const index=event.key==='Home'?0:event.key==='End'?2:(oi+direction+3)%3;selectOctave(octaveGroups[index].value);document.getElementById('tab-'+activeOctave).focus();}});
+ document.querySelector('.tabs').appendChild(tab);
+ const section=document.createElement('div'); section.className='octave-section'; section.dataset.octave=octave.value; section.id='panel-'+octave.value; section.setAttribute('role','tabpanel'); section.setAttribute('aria-labelledby',tab.id);
+ const natural=document.createElement('div'); natural.className='note-grid';
+ const extra=document.createElement('details'); extra.className='accidental-settings'; extra.innerHTML='<summary>顯示升降音</summary><div class="note-grid"></div>';
+ for(let number=1;number<=7;number++) accidentals.forEach((accidental,ai)=>{
+  if((number===1&&ai===0)||(number===3&&ai===2)||(number===4&&ai===0)||(number===7&&ai===2))return;
+  const wrapper=document.createElement('div');wrapper.className='note-option'; const id=`note-${oi}-${number}-${ai}`;
+  wrapper.innerHTML=`<input type="checkbox" id="${id}" data-number="${number}" data-octave="${octave.value}" data-accidental="${accidental.value}" ${octave.value==='middle'&&ai===1?'checked':''}><label for="${id}" aria-label="${octave.name} ${accidental.name}${number}">${accidental.name}${number}</label>`;
+  (ai===1?natural:extra.querySelector('.note-grid')).appendChild(wrapper);
+ });
+ section.append(natural,extra);
+ const actions=document.createElement('div');actions.className='octave-actions';
+ const naturalButton=document.createElement('button');naturalButton.type='button';naturalButton.className='small-button';naturalButton.textContent='此音域選自然音';naturalButton.addEventListener('click',()=>{getAllInputs().filter(i=>i.dataset.octave===octave.value).forEach(i=>i.checked=i.dataset.accidental==='natural');updateSelection();});actions.appendChild(naturalButton);section.appendChild(actions);noteSelector.appendChild(section);
 });
-
-
-/* =========================================
-   取得所有 checkbox
-========================================= */
-
-function getAllInputs() {
-
-    return Array.from(
-
-        document.querySelectorAll(
-            "#noteSelector input"
-        )
-
-    );
-
+function getAllInputs(){return Array.from(noteSelector.querySelectorAll('input'));}
+function getSelectedNotes(){return getAllInputs().filter(i=>i.checked).map(i=>({number:i.dataset.number,octave:i.dataset.octave,accidental:i.dataset.accidental}));}
+function updateSelection(){
+ const selected=getSelectedNotes();
+ const parts=octaveGroups.map(o=>{const notes=selected.filter(n=>n.octave===o.value);if(!notes.length)return ''; const allNatural=notes.length===7&&notes.every(n=>n.accidental==='natural');return o.name+' '+(allNatural?'1–7':notes.map(n=>(n.accidental==='flat'?'♭':n.accidental==='sharp'?'♯':'')+n.number).join('、'));}).filter(Boolean);
+ document.getElementById('selectionSummary').textContent=(parts.join('／')||'尚未選音')+'・共 '+selected.length+' 個音';
+ document.getElementById('error').textContent=selected.length?'':'請至少選擇一個出題音';
 }
-
-
-/* =========================================
-   取得已選音
-========================================= */
-
-function getSelectedNotes() {
-
-    return getAllInputs()
-
-        .filter(
-            input =>
-                input.checked
-        )
-
-        .map(
-            input => ({
-
-                number:
-                    input.dataset.number,
-
-                octave:
-                    input.dataset.octave,
-
-                accidental:
-                    input.dataset.accidental
-
-            })
-        );
-
-}
-
-
-/* =========================================
-   隨機抽取
-========================================= */
-
 function randomItem(array) {
 
     return array[
@@ -1035,663 +161,207 @@ function randomItem(array) {
    可使用的音符時值
 ========================================= */
 
-function generateRhythmForBar(beats, minDuration) {
-
+// Patterns start on quarter-note beat boundaries in the supported /4 meters.
+const sixteenthPatterns = [
+    [0.25, 0.25, 0.25, 0.25],
+    [0.5, 0.25, 0.25],
+    [0.25, 0.25, 0.5],
+    [0.25, 0.5, 0.25]
+];
+function generateRhythmForBar(beats, minDuration, requireSixteenth = false) {
     const rhythm = [];
-
-    let remainingBeats = beats;
-
-    while (remainingBeats > 0) {
-
-        const patterns = [];
-
-
-        /* =========================
-           1 拍：四分音符
-        ========================= */
-
-        patterns.push({
-            beats: 1,
-            durations: [1]
-        });
-
-
-        /* =========================
-           1 拍：兩個八分音符
-        ========================= */
-
-        if (minDuration <= 0.5) {
-
-            patterns.push({
-                beats: 1,
-                durations: [0.5, 0.5]
-            });
-
+    const denseLimit = Math.min(2, beats);
+    let remaining = beats;
+    let denseBeats = 0;
+    while (remaining > 0) {
+        const patterns = [[1]];
+        if (minDuration <= 0.5) patterns.push([0.5, 0.5]);
+        if (remaining >= 2) patterns.push([2]);
+        if (minDuration <= 0.25 && denseBeats < denseLimit) {
+            patterns.push(...sixteenthPatterns);
         }
-
-
-        /* =========================
-           1 拍：四個十六分音符
-           目前先保留
-        ========================= */
-
-        if (minDuration <= 0.25) {
-
-            patterns.push({
-                beats: 1,
-                durations: [
-                    0.25,
-                    0.25,
-                    0.25,
-                    0.25
-                ]
-            });
-
-        }
-
-
-        /* =========================
-           2 拍：二分音符
-        ========================= */
-
-        if (remainingBeats >= 2) {
-
-            patterns.push({
-                beats: 2,
-                durations: [2]
-            });
-
-        }
-
-
-        /* 只能選塞得下的節奏型 */
-
-        const possiblePatterns =
-            patterns.filter(
-                pattern =>
-                    pattern.beats <= remainingBeats
-            );
-
-
-        const pattern =
-            randomItem(
-                possiblePatterns
-            );
-
-
-        rhythm.push(
-            ...pattern.durations
-        );
-
-
-        remainingBeats -=
-            pattern.beats;
-
+        // Reserve the last beat when this question still needs a sixteenth group.
+        const candidates = requireSixteenth && denseBeats === 0
+            ? patterns.filter(pattern => pattern.includes(0.25) || pattern.reduce((a,b) => a+b, 0) < remaining)
+            : patterns;
+        const pattern = randomItem(candidates);
+        rhythm.push(...pattern);
+        if (pattern.includes(0.25)) denseBeats++;
+        remaining -= pattern.reduce((a,b) => a+b, 0);
     }
-
-
     return rhythm;
-
 }
 
-
-/* =========================================
-   建立一顆簡譜音符
-========================================= */
-
-function createNoteElement(note, duration) {
-
-    /*
-        一個 rhythm-item 代表一個完整的音符事件，
-        裡面包含數字與延長線。
-    */
-
-    const wrapper =
-        document.createElement("span");
-
-    wrapper.className =
-        "rhythm-item";
-
-
-    const element =
-        document.createElement("span");
-
-    element.classList.add("note");
-
-
-    /* =========================
-       高低八度
-    ========================= */
-
-    if (note.octave === "low") {
-
-        element.classList.add("low");
-
-    }
-
-    if (note.octave === "high") {
-
-        element.classList.add("high");
-
-    }
-
-
-    /* =========================
-       八分 / 十六分音符
-    ========================= */
-
-    if (duration === 0.5) {
-
-        element.classList.add("eighth");
-
-    }
-
-    if (duration === 0.25) {
-
-        element.classList.add("sixteenth");
-
-    }
-
-
-    /* =========================
-       升降記號
-    ========================= */
-
-    let accidental = "";
-
-
-    if (note.accidental === "sharp") {
-
-        accidental = "♯";
-
-    }
-
-    if (note.accidental === "flat") {
-
-        accidental = "♭";
-
-    }
-
-
-    element.innerHTML = `
-
-        ${
-            accidental
-            ?
-            `<span class="accidental">
-                ${accidental}
-            </span>`
-            :
-            ""
+// Work in integer sixteenth-note ticks; mixed durations must never cross a beat group.
+function groupEvents(events) {
+    const groups = [];
+    let position = 0;
+    for (const event of events) {
+        if (event.duration >= 1) {
+            // A sustained beat occupies its own slot; never attach dashes to the previous beat.
+            for (let beat = 0; beat < event.duration; beat++) {
+                groups.push([{...event, duration: 1, sustain: beat > 0}]);
+                position += 4;
+            }
+        } else {
+            if (position % 4 === 0) groups.push([]);
+            groups[groups.length - 1].push(event);
+            position += Math.round(event.duration * 4);
         }
+    }
+    return groups;
+}
+function validRhythm(events, beats, minDuration) {
+    const ticks = events.reduce((sum, event) => sum + event.duration * 4, 0);
+    return ticks === beats * 4 && events.every(event =>
+        [0.25, 0.5, 1, 2].includes(event.duration) && event.duration >= minDuration
+    ) && groupEvents(events).filter(group => group.some(event => event.duration === 0.25)).length <= 2;
+}
 
-        <span>
-            ${note.number}
-        </span>
-
-    `;
-
-
-    wrapper.appendChild(element);
-
-
-    /* =========================
-       延長拍
-    ========================= */
-
-    if (duration >= 2) {
-
-        const extraBeats =
-            Math.floor(duration) - 1;
-
-
-        for (
-            let i = 0;
-            i < extraBeats;
-            i++
-        ) {
-
-            const dash =
-                document.createElement("span");
-
-            dash.className =
-                "duration-dash";
-
-            dash.textContent =
-                "－";
-
-            wrapper.appendChild(dash);
-
+// Profiles preserve equal beats while fitting two measures before reducing note size.
+const notationProfiles = [
+    {cell:24, accidental:12, digit:18, font:30, mark:15, noteGap:3, beatGap:18, padding:12},
+    {cell:24, accidental:12, digit:18, font:30, mark:15, noteGap:2, beatGap:10, padding:8},
+    {cell:20, accidental:8, digit:16, font:26, mark:13, noteGap:2, beatGap:10, padding:8},
+    {cell:18, accidental:8, digit:14, font:24, mark:12, noteGap:2, beatGap:8, padding:8}
+];
+const accidentalInset = (event, profile = notationProfiles[0]) => event.note.accidental === 'natural' ? 0 : profile.accidental;
+const noteWidth = (event, profile = notationProfiles[0]) => profile.cell + accidentalInset(event, profile);
+function eventWidth(event, profile = notationProfiles[0]) {
+    return event.sustain ? profile.cell : noteWidth(event, profile);
+}
+function beatWidth(group, profile = notationProfiles[0]) {
+    return group.reduce((width, event) => width + eventWidth(event, profile), 0) + (group.length - 1) * profile.noteGap;
+}
+function barWidth(events, sharedBeatWidth, profile = notationProfiles[0]) {
+    const groups = groupEvents(events);
+    const beatMinimum = sharedBeatWidth ?? Math.max(44, ...groups.map(group => beatWidth(group, profile)));
+    return profile.padding * 2 + 4 + beatMinimum * groups.length + (groups.length - 1) * profile.beatGap;
+}
+function createNoteElement(event) {
+    if (event.sustain) {
+        const dash = document.createElement('span');
+        dash.className = 'duration-dash';
+        dash.textContent = '－';
+        return dash;
+    }
+    const note = event.note;
+    const item = document.createElement('span');
+    item.className = 'rhythm-item';
+    const element = document.createElement('span');
+    element.className = 'note ' + note.octave + (note.accidental !== 'natural' ? ' has-accidental' : '');
+    if (note.accidental !== 'natural') {
+        const accidental = document.createElement('span');
+        accidental.className = 'accidental';
+        accidental.textContent = note.accidental === 'sharp' ? '♯' : '♭';
+        element.appendChild(accidental);
+    }
+    const digit = document.createElement('span');
+    digit.className = 'digit';
+    digit.textContent = note.number;
+    element.appendChild(digit);
+    item.appendChild(element);
+    return item;
+}
+function beamSegments(events, profile = notationProfiles[0]) {
+    const cells = [];
+    let offset = 0;
+    for (const event of events) {
+        // Beam endpoints follow the 18px digit, excluding its accidental and side bearings.
+        const bearing = (profile.cell - profile.digit) / 2;
+        cells.push({event, left: offset + accidentalInset(event, profile) + bearing, right: offset + noteWidth(event, profile) - bearing});
+        offset += eventWidth(event, profile) + profile.noteGap;
+    }
+    const segments = [];
+    // Split each beam level into contiguous runs. A lone sixteenth keeps a short hook.
+    for (const level of [1, 2]) {
+        let run = [];
+        const flush = () => {
+            if (run.length) segments.push({level, left: run[0].left, right: run[run.length - 1].right});
+            run = [];
+        };
+        for (const cell of cells) {
+            if (cell.event.duration <= (level === 1 ? 0.5 : 0.25)) run.push(cell);
+            else flush();
         }
-
+        flush();
     }
-
-
-    return wrapper;
-
+    return segments;
 }
-
-
-/* =========================================
-   產生題目
-========================================= */
-
-function generateScore() {
-
-    const selectedNotes =
-        getSelectedNotes();
-
-
-    const error =
-        document.getElementById(
-            "error"
-        );
-
-
-    if (
-        selectedNotes.length === 0
-    ) {
-
-        error.style.display =
-            "block";
-
-        error.textContent =
-            "請至少選擇一個音。";
-
-        return;
-
-    }
-
-
-    error.style.display =
-        "none";
-
-
-    const meter =
-        Number(
-            document.getElementById(
-                "meter"
-            ).value
-        );
-
-
-    const numberOfBars =
-        Number(
-            document.getElementById(
-                "bars"
-            ).value
-        );
-
-
-    const minDuration =
-        Number(
-            document.getElementById(
-                "minDuration"
-            ).value
-        );
-
-
-    const score =
-        document.getElementById(
-            "score"
-        );
-
-
-    score.innerHTML =
-        "";
-
-
-
-
-
-    /* =============================
-       每一小節
-    ============================= */
-
-    for (
-
-    let barIndex = 0;
-
-    barIndex < numberOfBars;
-
-    barIndex++
-
-) {
-
-    const bar =
-
-        document.createElement("div");
-
-    bar.className =
-
-        "bar";
-
-    /*
-
-        先產生「完整的一小節節奏」
-
-        4/4 → 一定 4 拍
-
-        3/4 → 一定 3 拍
-
-        2/4 → 一定 2 拍
-
-    */
-
-    const rhythm =
-
-        generateRhythmForBar(
-
-            meter,
-
-            minDuration
-
-        );
-
-    /*
-
-        節奏確定之後
-
-        再把隨機音高填進去
-
-    */
-
-let beatPosition = 0;
-
-for (
-    let i = 0;
-    i < rhythm.length;
-    i++
-) {
-
-    const duration =
-        rhythm[i];
-
-
-    /*
-        只有：
-
-        1. 現在是八分音符
-        2. 下一顆也是八分音符
-        3. 現在剛好位於一拍的開頭
-
-        才組成一組
-    */
-
-    const isBeatStart =
-        Math.abs(
-            beatPosition
-            -
-            Math.round(beatPosition)
-        ) < 0.0001;
-
-
-    if (
-        duration === 0.5
-        &&
-        rhythm[i + 1] === 0.5
-        &&
-        isBeatStart
-    ) {
-
-        const group =
-            document.createElement("span");
-
-        group.className =
-            "eighth-group";
-
-
-        const note1 =
-            randomItem(
-                selectedNotes
-            );
-
-        const note2 =
-            randomItem(
-                selectedNotes
-            );
-
-
-        group.appendChild(
-            createNoteElement(
-                note1,
-                0.5
-            )
-        );
-
-        group.appendChild(
-            createNoteElement(
-                note2,
-                0.5
-            )
-        );
-
-
-        bar.appendChild(
-            group
-        );
-
-
-        /*
-            兩個八分音符 = 一拍
-        */
-
-        beatPosition += 1;
-
-
-        /*
-            下一顆已經畫完
-        */
-
-        i++;
-
-        continue;
-
-    }
-
-
-    /* 一般音符 */
-
-    const note =
-        randomItem(
-            selectedNotes
-        );
-
-
-    bar.appendChild(
-        createNoteElement(
-            note,
-            duration
-        )
-    );
-
-
-    beatPosition +=
-        duration;
-
+function createBar(events, index, width = barWidth(events), profile = notationProfiles[0]) {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    const variables = {'note-cell':profile.cell, 'accidental-space':profile.accidental, 'digit-width':profile.digit, 'note-font':profile.font, 'accidental-font':profile.mark, 'note-gap':profile.noteGap, 'beat-gap':profile.beatGap, 'bar-pad':profile.padding};
+    Object.entries(variables).forEach(([name, value]) => bar.style.setProperty('--' + name, value + 'px'));
+    bar.style.setProperty('--bar-width', width);
+    bar.style.setProperty('--beats', groupEvents(events).length);
+    bar.setAttribute('aria-label', '第 ' + (index + 1) + ' 小節');
+    groupEvents(events).forEach(events => {
+        const slot = document.createElement('span');
+        slot.className = 'beat-slot';
+        const group = document.createElement('span');
+        group.className = 'beat-group' + (events.some(event => event.note.octave === 'low') ? ' has-low' : '');
+        events.forEach(event => group.appendChild(createNoteElement(event)));
+        beamSegments(events, profile).forEach(segment => {
+            const beam = document.createElement('span');
+            beam.className = 'rhythm-beam' + (segment.level === 2 ? ' secondary' : '');
+            beam.style.left = segment.left + 'px';
+            beam.style.width = (segment.right - segment.left) + 'px';
+            beam.setAttribute('aria-hidden', 'true');
+            group.appendChild(beam);
+        });
+        slot.appendChild(group);
+        bar.appendChild(slot);
+    });
+    return bar;
 }
-
-    score.appendChild(
-
-        bar
-
-    );
-
+function arrangeBars(bars, width) {
+    if (!bars.length) return [];
+    const candidates = notationProfiles.map(profile => {
+        const sharedBeatWidth = Math.max(44, ...bars.flatMap(events => groupEvents(events).map(group => beatWidth(group, profile))));
+        return {profile, minimum: Math.max(...bars.map(events => barWidth(events, sharedBeatWidth, profile)))};
+    });
+    // Wide stages aim for two full measures; phones prioritize a readable single measure.
+    const target = width >= 900 && bars.length >= 2 ? 2 : 1;
+    const {profile, minimum} = candidates.find(candidate => candidate.minimum * target <= width) || candidates.find(candidate => candidate.minimum <= width) || candidates[candidates.length - 1];
+    const perLine = Math.max(1, Math.floor(width / minimum));
+    const measureWidth = Math.max(minimum, width / perLine);
+    const lines = [];
+    bars.forEach((events, index) => {
+        if (index % perLine === 0) lines.push([]);
+        lines[lines.length - 1].push({events, index, width: measureWidth, profile});
+    });
+    return lines;
 }
-
-
-    /* =============================
-       題目資訊
-    ============================= */
-
-    let durationName;
-
-
-    if (
-        minDuration === 1
-    ) {
-
-        durationName =
-            "四分音符";
-
-    }
-
-    else if (
-        minDuration === 0.5
-    ) {
-
-        durationName =
-            "八分音符";
-
-    }
-
-    else {
-
-        durationName =
-            "十六分音符";
-
-    }
-
-
-    document.getElementById(
-        "scoreInfo"
-    ).textContent =
-
-        `${meter}/4 ・ `
-        +
-        `${numberOfBars} 小節 ・ `
-        +
-        `最短 ${durationName} ・ `
-        +
-        `${selectedNotes.length} 個可用音`;
-
+function renderScore(){
+ const width=score.clientWidth;if(!width)return;
+ const fragment=document.createDocumentFragment();
+ arrangeBars(currentBars,width).forEach(bars=>{const row=document.createElement('div');row.className='score-line';const min=bars.reduce((sum,b)=>sum+b.width,0);if(min>width){row.tabIndex=0;row.setAttribute('role','region');row.setAttribute('aria-label','第 '+(bars[0].index+1)+' 小節，可左右捲動');}
+ const inner=document.createElement('div');inner.className='score-line-inner';inner.style.setProperty('--line-min',min+'px');bars.forEach(bar=>inner.appendChild(createBar(bar.events,bar.index,bar.width,bar.profile)));row.appendChild(inner);fragment.appendChild(row);});
+ score.replaceChildren(fragment);
 }
-
-
-/* =========================================
-   全部自然音
-========================================= */
-
-document
-.getElementById(
-    "naturalAll"
-)
-.addEventListener(
-    "click",
-    () => {
-
-        getAllInputs()
-        .forEach(
-            input => {
-
-                input.checked =
-
-                    input.dataset.accidental
-                    ===
-                    "natural";
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================
-   全部清除
-========================================= */
-
-document
-.getElementById(
-    "clearAll"
-)
-.addEventListener(
-    "click",
-    () => {
-
-        getAllInputs()
-        .forEach(
-            input => {
-
-                input.checked =
-                    false;
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================
-   單一音域自然音
-========================================= */
-
-document
-.querySelectorAll(
-    ".octave-natural"
-)
-.forEach(
-    button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const octave =
-                    button.dataset.octave;
-
-
-                getAllInputs()
-
-                .filter(
-                    input =>
-
-                        input.dataset.octave
-                        ===
-                        octave
-                )
-
-                .forEach(
-                    input => {
-
-                        input.checked =
-
-                            input.dataset.accidental
-                            ===
-                            "natural";
-
-                    }
-                );
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================
-   產生按鈕
-========================================= */
-
-document
-.getElementById(
-    "generate"
-)
-.addEventListener(
-    "click",
-    generateScore
-);
-
-
-/* =========================================
-   頁面開啟先產生一次
-========================================= */
-
-generateScore();
-
+function generateScore(){
+ const selected=getSelectedNotes();updateSelection();if(!selected.length)return;
+ const meter=Number(document.getElementById('meter').value),count=Number(document.getElementById('bars').value),min=Number(document.getElementById('minDuration').value);
+ const nextBars = Array.from({length:count}, (_, index) =>
+  generateRhythmForBar(meter, min, min === 0.25 && index === 0)
+   .map(duration => ({duration, note:randomItem(selected)})));
+ if (!nextBars.every(events => validRhythm(events, meter, min)) ||
+     (min === 0.25 && !nextBars.some(events => events.some(event => event.duration === 0.25)))) {
+  document.getElementById('error').textContent = '節奏驗證未通過，請重新出題。';
+  return;
+ }
+ currentBars = nextBars;
+ document.getElementById('scoreInfo').textContent=`${meter}/4 ・ ${count} 小節 ・ 最短 ${min===1?'四分音符':min===0.5?'八分音符':'十六分音符'} ・ ${selected.length} 個可用音`;
+ renderScore();
+}
+noteSelector.addEventListener('change',updateSelection);
+document.getElementById('naturalAll').addEventListener('click',()=>{getAllInputs().forEach(i=>i.checked=i.dataset.accidental==='natural');updateSelection();});
+document.getElementById('clearAll').addEventListener('click',()=>{getAllInputs().forEach(i=>i.checked=false);updateSelection();});
+document.getElementById('generate').addEventListener('click',generateScore);
+let layoutFrame=0;
+const observer=new ResizeObserver(()=>{cancelAnimationFrame(layoutFrame);layoutFrame=requestAnimationFrame(renderScore);});observer.observe(score);
+selectOctave('middle');updateSelection();generateScore();
 </script>
-
 </body>
 </html>
