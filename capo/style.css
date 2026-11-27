@@ -11,7 +11,10 @@ button { font: inherit; color: inherit; min-height: 48px; border: 1px solid var(
 button:disabled { opacity: .4; cursor: default; }
 button:active:not(:disabled) { transform: translateY(1px); }
 :focus-visible { outline: 3px solid var(--primary-ink); outline-offset: 3px; }
-.play-options { display: flex; gap: 8px; justify-content: center; }
+.play-options { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.play-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.common-plays { min-width: 0; max-width: 100%; margin: 0; padding: 8px 12px 12px; border: 2px solid var(--primary-ink); border-radius: var(--radius-control); }
+.common-plays legend { padding: 0 8px; color: var(--primary-ink); font-size: 14px; font-weight: 600; }
 .play-options button { min-width: 112px; }
 .play-options [aria-pressed=true] { background: var(--primary-hover); border-color: transparent; color: var(--on-primary); }
 .capo-control { display: flex; align-items: center; justify-content: center; gap: 24px; margin-top: 20px; }
@@ -23,6 +26,7 @@ output { display: block; font-size: 30px; font-weight: 600; font-variant-numeric
 .board-scroll { overflow-x: auto; margin-top: 16px; border-radius: 8px; }
 #fretboard { display: block; width: 100%; min-width: 650px; height: auto; }
 .neck { fill: var(--accent-soft); stroke: var(--border); }
+.high-fret-area { fill: #D6D6D6; }
 .string { stroke: #A99B88; }
 .fret { stroke: #BFB7A9; stroke-width: 2; }
 .nut { stroke: var(--text-muted); stroke-width: 5; }

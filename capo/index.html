@@ -19,8 +19,19 @@
     <h1>Capo 對照工具</h1>
     <section class="card" aria-label="Capo 調性對照">
       <div class="play-options" role="group" aria-label="Play 指法">
-        <button type="button" data-play="C" aria-pressed="true">Play C</button>
-        <button type="button" data-play="G" aria-pressed="false">Play G</button>
+        <fieldset class="common-plays">
+          <legend>彈唱常用</legend>
+          <div class="play-row">
+            <button type="button" data-play="C" aria-pressed="true">Play C</button>
+            <button type="button" data-play="G" aria-pressed="false">Play G</button>
+          </div>
+        </fieldset>
+        <div class="play-row">
+          <button type="button" data-play="D" aria-pressed="false">Play D</button>
+          <button type="button" data-play="E" aria-pressed="false">Play E</button>
+          <button type="button" data-play="F" aria-pressed="false">Play F</button>
+          <button type="button" data-play="A" aria-pressed="false">Play A</button>
+        </div>
       </div>
       <div class="capo-control">
         <button id="decrease" type="button" aria-label="Capo 減少一格" disabled>−</button>
@@ -36,10 +47,10 @@
           <g id="fretButtons"></g>
         </svg>
       </div>
-      <p class="hint board-hint">點選琴格移動 Capo；0 為不使用。</p>
+      <p class="hint board-hint">點選琴格移動 Capo；0 為不使用。灰色區域為第 7 格以上，彈唱不建議夾在此區域。</p>
       <div class="result" role="status" aria-live="polite" aria-atomic="true">
-        <h2 id="major">C Major</h2>
-        <p id="minor">A minor</p>
+        <h2 id="major">C 大調</h2>
+        <p id="minor">A 小調</p>
         <p id="combination">Play C + Capo 0</p>
       </div>
     </section>

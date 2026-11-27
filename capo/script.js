@@ -1,9 +1,10 @@
 /* Pitch classes are shared by each key pair; spellings match the display examples. */
 const majorNames = ['C', 'C♯', 'D', 'E♭', 'E', 'F', 'F♯', 'G', 'A♭', 'A', 'B♭', 'B'];
 const minorNames = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const playRoots = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9 };
 function getKeys(play, capo) {
-  const root = ((play === 'G' ? 7 : 0) + capo) % 12;
-  return { major: `${majorNames[root]} Major`, minor: `${minorNames[(root + 9) % 12]} minor` };
+  const root = (playRoots[play] + capo) % 12;
+  return { major: `${majorNames[root]} 大調`, minor: `${minorNames[(root + 9) % 12]} 小調` };
 }
 let play = 'C';
 let capo = 0;
@@ -36,6 +37,7 @@ function setCapo(value, reveal = true) {
 }
 // Equal-width frets keep all twelve touch targets comfortably sized on phones.
 svgElement('rect', { x: 60, y: 42, width: 696, height: 116, rx: 4, class: 'neck' }, drawing);
+svgElement('rect', { x: 408, y: 42, width: 348, height: 116, class: 'high-fret-area' }, drawing);
 for (const fret of [3, 5, 7, 9, 12]) {
   const x = 60 + (fret - .5) * 58;
   for (const y of fret === 12 ? [78, 122] : [100]) svgElement('circle', { cx: x, cy: y, r: 5, class: 'marker' }, drawing);
